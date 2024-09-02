@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/.vs/RPG-Game
+/RPG-Game
+/x64/Debug
