@@ -74,63 +74,71 @@ public:
 		sf::Vector2f newPosPlayer = player.GetPos();
 		bool colisiona = false;
 
-		if (tiles.find({playerXIdx - 1, playerYIdx}) != tiles.end()) {
-			int tileXIdx = playerXIdx - 1;
-			int tileYIdx = playerYIdx;
-			auto tile = tiles[{tileXIdx, tileYIdx}];
+		bool isFalling = true;
 
-			auto tileBounds = tile.GetGlobalBounds();
-
-			auto pos = auxPos;
-			pos.x -= (player.GetWidth() / f);
-
-			colisiona = tileBounds.contains(pos);
-			std::cout << (colisiona ? "SI" : "NO") << std::endl;
-
-			if (colisiona) {
-				auto tilePos = tile.GetPosition();
-				newPosPlayer.x = tilePos.x + Tile::DEFAULT_SIZE + (player.GetWidth() / f);
-			}
-		}
-		else if (tiles.find({ playerXIdx + 1, playerYIdx }) != tiles.end()) {
-			int tileXIdx = playerXIdx + 1;
-			int tileYIdx = playerYIdx;
-			auto tile = tiles[{tileXIdx, tileYIdx}];
-
-			auto tileBounds = tile.GetGlobalBounds();
-
-			auto pos = auxPos;
-			pos.x += (player.GetWidth() / f);
-
-			colisiona = tileBounds.contains(pos);
-			std::cout << (colisiona ? "SI" : "NO") << std::endl;
-
-			if (colisiona) {
-				auto tilePos = tile.GetPosition();
-				newPosPlayer.x = tilePos.x - (player.GetWidth() / f);
-			}
-		}
-
-		if (tiles.find({ playerXIdx, playerYIdx + 1}) != tiles.end()) {
+		if (
+			tiles.find({ playerXIdx, playerYIdx + 1 }) != tiles.end()
+			) {
 			int tileXIdx = playerXIdx;
 			int tileYIdx = playerYIdx + 1;
 			auto tile = tiles[{tileXIdx, tileYIdx}];
 
 			auto tileBounds = tile.GetGlobalBounds();
 
-			//auto pos = player.GetPos();
-
 			colisiona = tileBounds.intersects(player.GetGlobalBounds());
-			//std::cout << (colisiona ? "SI" : "NO") << std::endl;
 
 			if (colisiona) {
 				auto tilePos = tile.GetPosition();
 				newPosPlayer.y = tilePos.y;
+				isFalling = false;
 			}
 		}
 
+		if (!isFalling) {
+			if (tiles.find({ playerXIdx - 1, playerYIdx }) != tiles.end()) {
+				int tileXIdx = playerXIdx - 1;
+				int tileYIdx = playerYIdx;
+				auto tile = tiles[{tileXIdx, tileYIdx}];
+
+				auto tileBounds = tile.GetGlobalBounds();
+
+				auto pos = auxPos;
+				pos.x -= (player.GetWidth() / f);
+
+				colisiona = tileBounds.contains(pos);
+				std::cout << (colisiona ? "SI" : "NO") << std::endl;
+
+				if (colisiona) {
+					auto tilePos = tile.GetPosition();
+					newPosPlayer.x = tilePos.x + Tile::DEFAULT_SIZE + (player.GetWidth() / f);
+				}
+			}
+			else if (tiles.find({ playerXIdx + 1, playerYIdx }) != tiles.end()) {
+				int tileXIdx = playerXIdx + 1;
+				int tileYIdx = playerYIdx;
+				auto tile = tiles[{tileXIdx, tileYIdx}];
+
+				auto tileBounds = tile.GetGlobalBounds();
+
+				auto pos = auxPos;
+				pos.x += (player.GetWidth() / f);
+
+				colisiona = tileBounds.contains(pos);
+				std::cout << (colisiona ? "SI" : "NO") << std::endl;
+
+				if (colisiona) {
+					auto tilePos = tile.GetPosition();
+					newPosPlayer.x = tilePos.x - (player.GetWidth() / f);
+				}
+			}
+		}
+
+
+
+
 		if(colisiona)
 		player.SetPos(newPosPlayer);
+		
 	}
 
 };

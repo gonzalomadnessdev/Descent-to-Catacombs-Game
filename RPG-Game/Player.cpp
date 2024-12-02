@@ -142,7 +142,7 @@ void Player::Update() {
 	//opcion de manejo de la espadita A
 	if (pos_current == pos_attk) {
 		auto pos = sprite.getPosition();
-		pos.y += 42; // a  ojo
+		pos.y += 42 - height; // a  ojo
 
 
 		if (isLookingToLeft()) {

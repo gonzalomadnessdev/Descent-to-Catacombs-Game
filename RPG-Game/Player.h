@@ -23,12 +23,13 @@ private:
 	int height = 63;
 
 	float vel = 0.f;
-	float acc_default = 200.f;
-	float deacc_default = 500.f;
-	float max_vel = 400.f;
+	float acc_default = 100.f;
+	float deacc_default = 200.f;
+	float max_vel = 300.f;
 
 	bool to_right = true;
 	bool is_attacking = false;
+
 	int tick_changepos = 0;
 	void SetVel(float vel);
 
