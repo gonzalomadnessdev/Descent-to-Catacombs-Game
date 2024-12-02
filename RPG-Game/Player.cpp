@@ -63,6 +63,8 @@ void Player::Update() {
 	//	to_right = false;
 	//}
 
+	
+
 	is_attacking = false;
 	tick_changepos++;
 	tick_changepos = tick_changepos % 10; // 

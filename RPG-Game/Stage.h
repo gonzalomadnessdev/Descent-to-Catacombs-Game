@@ -9,25 +9,25 @@
 class Stage : public AbstractEntity
 {
 private:
-	int stage[18][32] = {
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	int stage[18][33] = { // tiene uno extra para fixear la caida
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+		{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 	};
 
 	std::map<std::pair<int, int>,Tile> tiles;
@@ -36,7 +36,7 @@ public:
 	Stage() {
 		for (size_t i = 0; i < 18; i++)
 		{
-			for (size_t j = 0; j < 32; j++)
+			for (size_t j = 0; j < 33; j++)
 			{
 				if (stage[i][j] != 0) {
 					//tiles.push_back(Tile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
@@ -62,13 +62,16 @@ public:
 
 	void checkCollisions(Player& player) {
 		const int f = 3.0f;
-		auto posPlayer = player.GetPos();
-		posPlayer.y -= player.GetHeight() / 2;
+		auto auxPos = player.GetPos();
+		auxPos.y -= player.GetHeight() / 2;
 
-		int playerXIdx = std::round(posPlayer.x) / Tile::DEFAULT_SIZE;
-		int playerYIdx = std::round(posPlayer.y) / Tile::DEFAULT_SIZE;
+		int playerXIdx = std::round(auxPos.x) / Tile::DEFAULT_SIZE;
+		int playerYIdx = std::round(auxPos.y) / Tile::DEFAULT_SIZE;
 		
 		std::cout << playerXIdx << " | " << playerYIdx << std::endl;
+
+		sf::Vector2f newPosPlayer = player.GetPos();
+		bool colisiona = false;
 
 		if (tiles.find({playerXIdx - 1, playerYIdx}) != tiles.end()) {
 			int tileXIdx = playerXIdx - 1;
@@ -77,17 +80,15 @@ public:
 
 			auto tileBounds = tile.GetGlobalBounds();
 
-			auto pos = posPlayer;
+			auto pos = auxPos;
 			pos.x -= (player.GetWidth() / f);
 
-			bool colisiona = tileBounds.contains(pos);
+			colisiona = tileBounds.contains(pos);
 			std::cout << (colisiona ? "SI" : "NO") << std::endl;
 
 			if (colisiona) {
 				auto tilePos = tile.GetPosition();
-				auto newPosPlayer = player.GetPos();
 				newPosPlayer.x = tilePos.x + Tile::DEFAULT_SIZE + (player.GetWidth() / f);
-				player.SetPos(newPosPlayer);
 			}
 		}
 		else if (tiles.find({ playerXIdx + 1, playerYIdx }) != tiles.end()) {
@@ -97,40 +98,38 @@ public:
 
 			auto tileBounds = tile.GetGlobalBounds();
 
-			auto pos = posPlayer;
+			auto pos = auxPos;
 			pos.x += (player.GetWidth() / f);
 
-			bool colisiona = tileBounds.contains(pos);
+			colisiona = tileBounds.contains(pos);
 			std::cout << (colisiona ? "SI" : "NO") << std::endl;
 
 			if (colisiona) {
 				auto tilePos = tile.GetPosition();
-				auto newPosPlayer = player.GetPos();
 				newPosPlayer.x = tilePos.x - (player.GetWidth() / f);
-				player.SetPos(newPosPlayer);
 			}
 		}
-		else if (tiles.find({ playerXIdx, playerYIdx + 1}) != tiles.end()) {
+
+		if (tiles.find({ playerXIdx, playerYIdx + 1}) != tiles.end()) {
 			int tileXIdx = playerXIdx;
 			int tileYIdx = playerYIdx + 1;
 			auto tile = tiles[{tileXIdx, tileYIdx}];
 
 			auto tileBounds = tile.GetGlobalBounds();
 
-			auto pos = posPlayer;
-			pos.y += (player.GetWidth() / f);
+			//auto pos = player.GetPos();
 
-			bool colisiona = tileBounds.contains(pos);
-			std::cout << (colisiona ? "SI" : "NO") << std::endl;
+			colisiona = tileBounds.intersects(player.GetGlobalBounds());
+			//std::cout << (colisiona ? "SI" : "NO") << std::endl;
 
 			if (colisiona) {
 				auto tilePos = tile.GetPosition();
-				auto newPosPlayer = player.GetPos();
 				newPosPlayer.y = tilePos.y;
-				player.SetPos(newPosPlayer);
 			}
-		
 		}
+
+		if(colisiona)
+		player.SetPos(newPosPlayer);
 	}
 
 };

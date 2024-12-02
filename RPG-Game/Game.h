@@ -58,6 +58,11 @@ private:
 			siegward.SetPos(sf::Vector2f(0, playerPos.y));
 		}
 
+		//efecto grav
+		auto siegwardPos = siegward.GetPos();
+		siegwardPos.y += 6;
+		siegward.SetPos(siegwardPos);
+		//end 
 		stage.checkCollisions(siegward);
 
 		for (auto entity : entities) {
