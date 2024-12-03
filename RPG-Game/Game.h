@@ -59,10 +59,12 @@ private:
 		}
 
 		//efecto grav
-		auto siegwardPos = siegward.GetPos();
-		siegwardPos.y += 6;
-		siegward.SetPos(siegwardPos);
+
+
+		siegward.ApplyGravity();
 		//end 
+
+
 		stage.checkCollisions(siegward);
 
 		for (auto entity : entities) {

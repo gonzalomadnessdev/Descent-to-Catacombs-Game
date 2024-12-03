@@ -7,8 +7,10 @@ class Tile : public AbstractEntity
 public:	
 	Tile(float posx = 0, float posy = 0) : shape(sf::Vector2f(DEFAULT_SIZE, DEFAULT_SIZE))
 	{
-		shape.setFillColor(sf::Color::Green);
-		shape.setPosition({ posx, posy });
+		int originX, originY;
+		originX = originY = (DEFAULT_SIZE / 2);
+		shape.setOrigin(originX, originY);
+		shape.setPosition({ posx + originX, posy + originY });
 	}
 
 	void Draw(sf::RenderWindow& window) {
@@ -26,11 +28,12 @@ public:
 		return shape.getPosition();
 	}
 
-
+	virtual int Code() = 0;
 
 	static const int DEFAULT_SIZE = 40;
 
-private:
+protected:
 	sf::RectangleShape shape;
+
 };
 

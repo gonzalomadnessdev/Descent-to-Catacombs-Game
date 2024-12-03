@@ -4,20 +4,24 @@
 #include <vector>
 #include <map>
 #include "Tile.h"
+#include "FloorTile.h"
+#include "WallTile.h"
 #include "Player.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 class Stage : public AbstractEntity
 {
 private:
 	int stage[18][33] = { // tiene uno extra para fixear la caida
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -31,7 +35,7 @@ private:
 
 	};
 
-	std::map<std::pair<int, int>,Tile> tiles;
+	std::vector<Tile*> tiles;
 
 public:
 	Stage() {
@@ -41,15 +45,22 @@ public:
 			{
 				if (stage[i][j] != 0) {
 					//tiles.push_back(Tile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
-					tiles[std::make_pair(j, i)] = Tile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE);
+					if (stage[i][j] == 1) {
+						tiles.push_back(new FloorTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+					}
+					else if (stage[i][j] == 2) {
+						tiles.push_back(new WallTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+					}
 				}
 			}
 		}
+
+		std::sort(tiles.begin(), tiles.end(), [](Tile* t1, Tile* t2) { return t1->Code() < t2->Code(); });
 	}
 
 	void Draw(sf::RenderWindow& window) {
-		for (auto tile : tiles) {
-			tile.second.Draw(window);
+		for (auto item : tiles) {
+			item->Draw(window);
 		}
 	}
 
@@ -62,84 +73,71 @@ public:
 	//}
 
 	void checkCollisions(Player& player) {
-		const int f = 3.0f;
-		auto auxPos = player.GetPos();
-		auxPos.y -= player.GetHeight() / 2;
+		sf::Vector2f currPosPlayer = player.GetPos();
+		sf::Vector2f newPos = currPosPlayer;
 
-		int playerXIdx = std::round(auxPos.x) / Tile::DEFAULT_SIZE;
-		int playerYIdx = std::round(auxPos.y) / Tile::DEFAULT_SIZE;
-		
-		std::cout << playerXIdx << " | " << playerYIdx << std::endl;
+		sf::Vector2f currPosPlayerCenter = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight() / 2) };
+		sf::Vector2f currPosPlayerCenterRight = { currPosPlayer.x + (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2)};
+		sf::Vector2f currPosPlayerCenterLeft = { currPosPlayer.x - (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2)};
+		sf::Vector2f currPosPlayerCenterTop = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight()) };
 
-		sf::Vector2f newPosPlayer = player.GetPos();
-		bool colisiona = false;
+		for (auto tile : tiles) {
+			auto tileBounds = tile->GetGlobalBounds();
+			auto tilePos = tile->GetPosition();
 
-		bool isFalling = true;
+			if (tile->Code() == FloorTile::CODE) {
+				if (tileBounds.contains(currPosPlayer)) {
+					auto diff = currPosPlayer - tilePos;
 
-		if (
-			tiles.find({ playerXIdx, playerYIdx + 1 }) != tiles.end()
-			) {
-			int tileXIdx = playerXIdx;
-			int tileYIdx = playerYIdx + 1;
-			auto tile = tiles[{tileXIdx, tileYIdx}];
+					// Calculate the angle in radians
+					double angle_radians = std::atan2(-diff.y, diff.x);
+					// Convert radians to degrees
+					double angle_degrees = angle_radians * (180.0 / M_PI);
 
-			auto tileBounds = tile.GetGlobalBounds();
+					//esta arriba
+					//std::cout << angle_degrees << std::endl;
+					if (angle_degrees >= 30 && angle_degrees <= 150) {
+						newPos = { newPos.x, tilePos.y - (Tile::DEFAULT_SIZE / 2) };
+					}
 
-			colisiona = tileBounds.intersects(player.GetGlobalBounds());
-
-			if (colisiona) {
-				auto tilePos = tile.GetPosition();
-				newPosPlayer.y = tilePos.y;
-				isFalling = false;
-			}
-		}
-
-		if (!isFalling) {
-			if (tiles.find({ playerXIdx - 1, playerYIdx }) != tiles.end()) {
-				int tileXIdx = playerXIdx - 1;
-				int tileYIdx = playerYIdx;
-				auto tile = tiles[{tileXIdx, tileYIdx}];
-
-				auto tileBounds = tile.GetGlobalBounds();
-
-				auto pos = auxPos;
-				pos.x -= (player.GetWidth() / f);
-
-				colisiona = tileBounds.contains(pos);
-				std::cout << (colisiona ? "SI" : "NO") << std::endl;
-
-				if (colisiona) {
-					auto tilePos = tile.GetPosition();
-					newPosPlayer.x = tilePos.x + Tile::DEFAULT_SIZE + (player.GetWidth() / f);
 				}
 			}
-			else if (tiles.find({ playerXIdx + 1, playerYIdx }) != tiles.end()) {
-				int tileXIdx = playerXIdx + 1;
-				int tileYIdx = playerYIdx;
-				auto tile = tiles[{tileXIdx, tileYIdx}];
+			else if (tile->Code() == WallTile::CODE) {
+				if (tileBounds.contains(currPosPlayerCenterRight)) {
+					auto diff = currPosPlayerCenterRight - tilePos;
 
-				auto tileBounds = tile.GetGlobalBounds();
+					// Calculate the angle in radians
+					double angle_radians = std::atan2(-diff.y, diff.x);
+					// Convert radians to degrees
+					double angle_degrees = angle_radians * (180.0 / M_PI);
 
-				auto pos = auxPos;
-				pos.x += (player.GetWidth() / f);
+					//esta a la izquierda
+					std::cout << angle_degrees << std::endl;
+					if (angle_degrees >= 0 && angle_degrees <= 90 || angle_degrees < 360 && angle_degrees >= 270) {
+						newPos = { tilePos.x - (Tile::DEFAULT_SIZE), (newPos.y) };
+					}
 
-				colisiona = tileBounds.contains(pos);
-				std::cout << (colisiona ? "SI" : "NO") << std::endl;
+				}
+				if (tileBounds.contains(currPosPlayerCenterLeft)) {
+					auto diff = currPosPlayerCenterLeft - tilePos;
 
-				if (colisiona) {
-					auto tilePos = tile.GetPosition();
-					newPosPlayer.x = tilePos.x - (player.GetWidth() / f);
+					// Calculate the angle in radians
+					double angle_radians = std::atan2(-diff.y, diff.x);
+					// Convert radians to degrees
+					double angle_degrees = angle_radians * (180.0 / M_PI);
+
+					//esta a la izquierda
+					std::cout << angle_degrees << std::endl;
+					if (angle_degrees >= 90 && angle_degrees <= 270) {
+						newPos = { tilePos.x + (Tile::DEFAULT_SIZE), (newPos.y) };
+					}
+
 				}
 			}
+
+
+			player.SetPos(newPos);
 		}
-
-
-
-
-		if(colisiona)
-		player.SetPos(newPosPlayer);
-		
-	}
 
 };
 

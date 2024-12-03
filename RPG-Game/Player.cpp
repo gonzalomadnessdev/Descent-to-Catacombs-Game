@@ -15,7 +15,7 @@ Player::Player() {
 	sword_texture.loadFromImage(swordImage);
 	sword_sprite.setTexture(sword_texture);
 
-	sword_sprite.setOrigin(-(width / 2), (sword_sprite.getLocalBounds().height / 2));
+	sword_sprite.setOrigin(-(width / 2.5f), (sword_sprite.getLocalBounds().height / 2));
 
 	texture.loadFromImage(image, sf::IntRect(0, 0, width, height));
 	sprite.setTexture(texture);
@@ -27,6 +27,8 @@ Player::Player() {
 	pos_walk = sf::IntRect(((width) * 1), 0, width, height);
 	pos_attk = sf::IntRect(((width) * 2), 0, width, height);
 	pos_current = pos_idle;
+
+	prevPos = GetPos();
 }
 
 sf::Vector2f Player::GetPos() {
@@ -55,6 +57,14 @@ bool Player::isLookingToLeft() {
 	return !to_right;
 }
 
+void Player::ApplyGravity() {
+	auto pos = GetPos();
+	pos.y += 6;
+	SetPos(pos);
+
+	if(vel_up < 0) vel_up += 10;
+}
+
 void Player::Update() {
 	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
 	//	
@@ -62,7 +72,9 @@ void Player::Update() {
 	//else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
 	//	to_right = false;
 	//}
+	prevPos = GetPos();
 
+	//std::cout << is_falling << std::endl;
 	
 
 	is_attacking = false;
@@ -76,37 +88,43 @@ void Player::Update() {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-			is_attacking = true;
-			pos_current = pos_attk;
-			texture.loadFromImage(image, pos_current);
-			sprite.setTexture(texture);
-			vel = 0.f;
+			if (!is_falling) {
+				is_attacking = true;
+				pos_current = pos_attk;
+				texture.loadFromImage(image, pos_current);
+				sprite.setTexture(texture);
+				vel = 0.f;
+			}
 		}
 		else {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-				to_right = false;
-				acceleration = -acc_default;
-				if (tick_changepos == 0) {
-					if (pos_current == pos_idle) pos_current = pos_walk;
-					else pos_current = pos_idle;
-				}
+				if (!is_attacking && !is_falling) {
+					to_right = false;
+					acceleration = -acc_default;
+					if (tick_changepos == 0) {
+						if (pos_current == pos_idle) pos_current = pos_walk;
+						else pos_current = pos_idle;
+					}
 
-				texture.loadFromImage(image, pos_current);
-				sprite.setTexture(texture);
-				sprite.setScale({ -1, 1 });
-				if (vel > 0) acceleration = -deacc_default * 10;
+					texture.loadFromImage(image, pos_current);
+					sprite.setTexture(texture);
+					sprite.setScale({ -1, 1 });
+					if (vel > 0) acceleration = -deacc_default * 10;
+				}
 			}
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-				to_right = true;
-				acceleration = acc_default;
-				if (tick_changepos == 0) {
-					if (pos_current == pos_idle) pos_current = pos_walk;
-					else pos_current = pos_idle;
+				if (!is_attacking && !is_falling) {
+					to_right = true;
+					acceleration = acc_default;
+					if (tick_changepos == 0) {
+						if (pos_current == pos_idle) pos_current = pos_walk;
+						else pos_current = pos_idle;
+					}
+					texture.loadFromImage(image, pos_current);
+					sprite.setTexture(texture);
+					sprite.setScale({ 1, 1 });
+					if (vel < 0) acceleration = deacc_default * 10;
 				}
-				texture.loadFromImage(image, pos_current);
-				sprite.setTexture(texture);
-				sprite.setScale({ 1, 1 });
-				if (vel < 0) acceleration = deacc_default * 10;
 			}
 		}
 	}
@@ -118,6 +136,12 @@ void Player::Update() {
 		pos_current = pos_idle;
 		texture.loadFromImage(image, pos_current);
 		sprite.setTexture(texture);
+	}
+
+	//aca?
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !is_falling && !is_attacking) {
+		//std::cout << "salta" << std::endl;
+		if (vel_up >= 0) vel_up = max_vel_up;
 	}
 
 
@@ -140,19 +164,21 @@ void Player::Update() {
 	//}
 
 	//opcion de manejo de la espadita A
-	if (pos_current == pos_attk) {
-		auto pos = sprite.getPosition();
-		pos.y += 42 - height; // a  ojo
+	if (is_attacking && !is_falling) {
+		if (pos_current == pos_attk) {
+			auto pos = sprite.getPosition();
+			pos.y += 42 - height; // a  ojo
 
 
-		if (isLookingToLeft()) {
-			sword_sprite.setRotation(180);
+			if (isLookingToLeft()) {
+				sword_sprite.setRotation(180);
+			}
+			else {
+				pos.y -= 1; // a  ojo
+				sword_sprite.setRotation(0);
+			}
+			sword_sprite.setPosition(pos);
 		}
-		else {
-			pos.y -= 1; // a  ojo
-			sword_sprite.setRotation(0);
-		}
-		sword_sprite.setPosition(pos);
 	}
 	else {
 		sword_sprite.setPosition(-100000, -100000);
@@ -166,6 +192,13 @@ void Player::Update() {
 	if (temp_vel > max_vel) temp_vel = max_vel;
 	else if (temp_vel < -max_vel) temp_vel = -max_vel;
 	vel = temp_vel;
+
+	//up
+	if (vel_up > 0) vel_up = 0;
+	
+	movement.y = (vel_up * delta_time);
+
+	//end up
 
 	sprite.move(movement);
 }

@@ -27,27 +27,39 @@ private:
 	float deacc_default = 200.f;
 	float max_vel = 300.f;
 
+	float vel_up = 0.f;
+	float max_vel_up = -750.f;
+
 	bool to_right = true;
 	bool is_attacking = false;
+	bool is_falling = false;
 
 	int tick_changepos = 0;
 	void SetVel(float vel);
 
+	sf::Vector2f prevPos;
+
 public:
+
 	Player();
 	void Draw(sf::RenderWindow& window);
 	void Update();
 	void SetPos(sf::Vector2<float> pos);
+	void ApplyGravity();
 	bool isLookingToRight();
 	bool isLookingToLeft();
 
 	int GetWidth() const { return width; }
 	int GetHeight() const { return height; }
 
+	void SetIsFalling(bool isfalling) { is_falling = isfalling; };
+
 	sf::Vector2f GetPos();
+	sf::Vector2f GetPrevPos() const { return prevPos; }
 
 	sf::FloatRect GetGlobalBounds() {
 		return sprite.getGlobalBounds();
 	}
+	
 };
 
