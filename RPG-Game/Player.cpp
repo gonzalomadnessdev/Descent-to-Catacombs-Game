@@ -5,6 +5,11 @@
 #include <iostream>
 
 Player::Player() {
+	pos_idle = sf::IntRect(((width) * 0), 0, width, height);
+	pos_walk = sf::IntRect(((width) * 1), 0, width, height);
+	pos_attk = sf::IntRect(((width) * 2), 0, width, height);
+	pos_current = pos_idle;
+
 	image.loadFromFile("./img/siegward_spritesheet.png");
 	image.createMaskFromColor(sf::Color::Red);
 
@@ -17,16 +22,11 @@ Player::Player() {
 
 	sword_sprite.setOrigin(-(width / 2.5f), (sword_sprite.getLocalBounds().height / 2));
 
-	texture.loadFromImage(image, sf::IntRect(0, 0, width, height));
+	texture.loadFromImage(image, pos_current);
 	sprite.setTexture(texture);
 
 	sprite.setOrigin(width / 2, height);
 	sprite.setScale({1,1});
-
-	pos_idle = sf::IntRect(((width) * 0), 0, width, height);
-	pos_walk = sf::IntRect(((width) * 1), 0, width, height);
-	pos_attk = sf::IntRect(((width) * 2), 0, width, height);
-	pos_current = pos_idle;
 
 	prevPos = GetPos();
 }
@@ -78,6 +78,7 @@ void Player::Update() {
 	
 
 	is_attacking = false;
+	
 	tick_changepos++;
 	tick_changepos = tick_changepos % 10; // 
 	float delta_time = 0.016f;
@@ -201,4 +202,7 @@ void Player::Update() {
 	//end up
 
 	sprite.move(movement);
+
 }
+
+

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <vector>
 #include "AbstractEntity.h"
+#include "Tile.h"
+#include "FloorTile.h"
 
 class Player : public AbstractEntity
 {
@@ -32,7 +34,7 @@ private:
 
 	bool to_right = true;
 	bool is_attacking = false;
-	bool is_falling = false;
+	bool is_falling = true;
 
 	int tick_changepos = 0;
 	void SetVel(float vel);
@@ -42,6 +44,7 @@ private:
 	int health = 100;
 
 public:
+	int GetDrawOrder() override { return 2; };
 
 	Player();
 	void Draw(sf::RenderWindow& window);
@@ -73,6 +76,43 @@ public:
 	};
 
 	bool isAlive() { return health > 0; };
-	
+
+	bool isFalling() {
+		return is_falling;
+	}
+
+	sf::Vector2f GetPosBottomRight(){ 
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x + (GetWidth() / 4), currPosPlayer.y };
+	};
+
+	sf::Vector2f GetPosBottomLeft() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x - (GetWidth() / 4), currPosPlayer.y };
+	};
+
+	sf::Vector2f GetPosCenterRight() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x + (GetWidth() / 2), currPosPlayer.y - (GetHeight() / 2) };
+	};
+
+	sf::Vector2f GetPosCenterLeft() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x - (GetWidth() / 2), currPosPlayer.y - (GetHeight() / 2) };
+	};
+
+	void checkFallingState(std::vector<Tile*> tiles) {
+		bool player_is_falling = true;
+		for (auto tile : tiles) {
+			if (tile->Code() == FloorTile::CODE) {
+				auto tileBounds = tile->GetGlobalBounds();
+				if (tileBounds.contains(GetPosBottomLeft()) || tileBounds.contains(GetPosBottomRight())) {
+					player_is_falling = false;
+					break;
+				}
+			}
+		}
+		is_falling = player_is_falling;
+	}
 };
 

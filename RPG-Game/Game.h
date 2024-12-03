@@ -8,6 +8,7 @@
 #include "Stage.h"
 #include <vector>
 #include "AbstractEntity.h"
+#include "Enemy.h"
 
 class Game {
 
@@ -19,24 +20,32 @@ private:
 
 	Player siegward;
 	Stage stage;
+	std::vector<Enemy*> enemies;
 
 	void Initialize() {
+
+		
+
 		window.setFramerateLimit(60);
 		window.setKeyRepeatEnabled(false);
 
 		//stage
 		entities.push_back(&stage);
 
-		//player initialization and save
-		sf::Vector2f initialPosPlayer;
-		initialPosPlayer.x = 80;
-		initialPosPlayer.y = 80;
-		siegward.SetPos(initialPosPlayer);
+		siegward.SetPos({80,80});
+
+		enemies.push_back((new Enemy())->SetPos({ 1000,80 })->SetTiles(stage.GetTiles()));
+		enemies.push_back((new Enemy())->SetPos({ 160,320 })->SetTiles(stage.GetTiles()));
+		enemies.push_back((new Enemy())->SetPos({ 800,320 })->SetTiles(stage.GetTiles())->SetVel(-1.2f)->SetForward(false));
+
+
+		for (auto enemy : enemies) {
+			entities.push_back(enemy);
+		}
 
 		entities.push_back(&siegward);
 
-
-
+		sort(entities.begin(), entities.end(), [](AbstractEntity* e1, AbstractEntity* e2) { return e1->GetDrawOrder() < e2->GetDrawOrder();});
 	}
 
 	void ProcessEvents() {
@@ -58,19 +67,25 @@ private:
 			siegward.SetPos(sf::Vector2f(0, playerPos.y));
 		}
 
-		//efecto grav
 		siegward.ApplyGravity();
-		//end 
+		siegward.checkFallingState(stage.GetTiles());
 		stage.checkCollisions(siegward);
 
-		std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
+		//std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
 		if (siegward.GetPos().y > height * 1.5) {
 			siegward.Kill();
 		}
 
-		for (auto entity : entities) {
-			entity->Update();
+		//for (auto entity : entities) {
+		//	entity->Update();
+		//}
+		siegward.Update();
+		for (auto enemy : enemies) {
+			enemy->Update();
 		}
+
+		stage.Update();
+		std::cout << siegward.isFalling() << std::endl;
 	}
 
 	void Render() {

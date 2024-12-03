@@ -19,9 +19,9 @@ private:
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -68,29 +68,23 @@ public:
 
 	}
 
-	//const std::vector<Tile>& getTiles() const {
-	//	return tiles;
-	//}
+	const std::vector<Tile*> GetTiles() {
+		return tiles;
+	}
 
 	void checkCollisions(Player& player) {
 		sf::Vector2f currPosPlayer = player.GetPos();
-		sf::Vector2f prevPosPlayer = player.GetPrevPos();
 
 		sf::Vector2f newPos = currPosPlayer;
-
-		sf::Vector2f currPosPlayerBottomRight = { currPosPlayer.x + (player.GetWidth() / 4), currPosPlayer.y };
-		sf::Vector2f currPosPlayerBottomLeft = { currPosPlayer.x - (player.GetWidth() / 4), currPosPlayer.y };
-		sf::Vector2f currPosPlayerCenterRight = { currPosPlayer.x + (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
-		sf::Vector2f currPosPlayerCenterLeft = { currPosPlayer.x - (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
 
 		for (auto tile : tiles) {
 			auto tileBounds = tile->GetGlobalBounds();
 			auto tilePos = tile->GetPosition();
 
 			if (tile->Code() == FloorTile::CODE) {
-				if (tileBounds.contains(currPosPlayerBottomRight) || tileBounds.contains(currPosPlayerBottomLeft)) {
+
+				if (tileBounds.contains(player.GetPosBottomRight()) || tileBounds.contains(player.GetPosBottomLeft())) {
 					auto diff = currPosPlayer - tilePos;
-					auto diffPrev = prevPosPlayer - tilePos;
 
 					// Calculate the angle in radians
 					double angle_radians = std::atan2(-diff.y, diff.x);
@@ -99,19 +93,17 @@ public:
 
 					//esta arriba
 					//std::cout << angle_degrees << std::endl;
-					if (angle_degrees >= 0 && angle_degrees <= 180 && diffPrev.y < 0) {
+					if (angle_degrees >= 0 && angle_degrees <= 180) {
 						newPos = { newPos.x, tilePos.y - (Tile::DEFAULT_SIZE / 2) };
 						player.SetPos(newPos);
 					}
-
-
 				}
 
 			}
 			else if (tile->Code() == WallTile::CODE) {
-				if ((tileBounds.contains(currPosPlayerCenterLeft)) || (tileBounds.contains(currPosPlayerCenterRight))) {
-					if (tileBounds.contains(currPosPlayerCenterRight)) {
-						auto diff = currPosPlayerCenterRight - tilePos;
+				if ((tileBounds.contains(player.GetPosCenterLeft())) || (tileBounds.contains(player.GetPosCenterRight()))) {
+					if (tileBounds.contains(player.GetPosCenterRight())) {
+						auto diff = player.GetPosCenterRight() - tilePos;
 
 						// Calculate the angle in radians
 						double angle_radians = std::atan2(-diff.y, diff.x);
@@ -128,8 +120,8 @@ public:
 						}
 
 					}
-					else if (tileBounds.contains(currPosPlayerCenterLeft)) {
-						auto diff = currPosPlayerCenterLeft - tilePos;
+					else if (tileBounds.contains(player.GetPosCenterLeft())) {
+						auto diff = player.GetPosCenterLeft() - tilePos;
 
 						// Calculate the angle in radians
 						double angle_radians = std::atan2(-diff.y, diff.x);
