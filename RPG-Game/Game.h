@@ -59,13 +59,14 @@ private:
 		}
 
 		//efecto grav
-
-
 		siegward.ApplyGravity();
 		//end 
-
-
 		stage.checkCollisions(siegward);
+
+		std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
+		if (siegward.GetPos().y > height * 1.5) {
+			siegward.Kill();
+		}
 
 		for (auto entity : entities) {
 			entity->Update();
@@ -79,9 +80,39 @@ private:
 	}
 
 	void Draw() {
+
 		for (auto entity : entities) {
 			entity->Draw(window);
 		}
+
+		//game over region
+		if (!siegward.isAlive()) {
+			//mover todo esto a una clase texto
+
+			sf::Text text;
+			sf::Font font;
+			if (!font.loadFromFile("./fonts/pirata.ttf")) {
+				// Handle error if font is not loaded
+				exit(-1);
+			}
+			// select the font
+			text.setFont(font); // font is a sf::Font
+
+			// set the string to display
+			text.setString("Game Over");
+
+			// set the character size
+			text.setCharacterSize(40); // in pixels, not points!
+
+			// set the color
+			text.setFillColor(sf::Color::White);
+
+			auto bounds = text.getGlobalBounds();
+			text.setPosition((width / 2) - (bounds.width / 2), (height / 2) - (bounds.height / 2));
+
+			window.draw(text);
+		}
+		//end game over region
 	}
 
 public:
@@ -100,9 +131,15 @@ public:
 		while (window.isOpen())
 		{
 			ProcessEvents();
-			Update();
+
+			if (siegward.isAlive()) {
+				Update();
+			}
+
 			Render();
 		}
+
+		
 	}
 
 };

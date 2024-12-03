@@ -39,6 +39,8 @@ private:
 
 	sf::Vector2f prevPos;
 
+	int health = 100;
+
 public:
 
 	Player();
@@ -60,6 +62,17 @@ public:
 	sf::FloatRect GetGlobalBounds() {
 		return sprite.getGlobalBounds();
 	}
+
+	int getHealth() const { return health; };
+	void takeDamage(int dmg) { 
+		health -= dmg;
+		if (health < 0) health = 0;
+	};
+	void Kill() {
+		health = 0;
+	};
+
+	bool isAlive() { return health > 0; };
 	
 };
 
