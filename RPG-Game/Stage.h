@@ -14,19 +14,19 @@ class Stage : public AbstractEntity
 {
 private:
 	int stage[18][33] = { // tiene uno extra para fixear la caida
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -74,20 +74,23 @@ public:
 
 	void checkCollisions(Player& player) {
 		sf::Vector2f currPosPlayer = player.GetPos();
+		sf::Vector2f prevPosPlayer = player.GetPrevPos();
+
 		sf::Vector2f newPos = currPosPlayer;
 
-		sf::Vector2f currPosPlayerCenter = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight() / 2) };
+		sf::Vector2f currPosPlayerBottomRight = { currPosPlayer.x + (player.GetWidth() / 4), currPosPlayer.y };
+		sf::Vector2f currPosPlayerBottomLeft = { currPosPlayer.x - (player.GetWidth() / 4), currPosPlayer.y };
 		sf::Vector2f currPosPlayerCenterRight = { currPosPlayer.x + (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
 		sf::Vector2f currPosPlayerCenterLeft = { currPosPlayer.x - (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
-		sf::Vector2f currPosPlayerCenterTop = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight()) };
 
 		for (auto tile : tiles) {
 			auto tileBounds = tile->GetGlobalBounds();
 			auto tilePos = tile->GetPosition();
 
 			if (tile->Code() == FloorTile::CODE) {
-				if (tileBounds.contains(currPosPlayer)) {
+				if (tileBounds.contains(currPosPlayerBottomRight) || tileBounds.contains(currPosPlayerBottomLeft)) {
 					auto diff = currPosPlayer - tilePos;
+					auto diffPrev = prevPosPlayer - tilePos;
 
 					// Calculate the angle in radians
 					double angle_radians = std::atan2(-diff.y, diff.x);
@@ -95,50 +98,57 @@ public:
 					double angle_degrees = angle_radians * (180.0 / M_PI);
 
 					//esta arriba
-					//std::cout << angle_degrees << std::endl;
-					if (angle_degrees >= 30 && angle_degrees <= 150) {
+					std::cout << angle_degrees << std::endl;
+					if (angle_degrees >= 0 && angle_degrees <= 180 && diffPrev.y < 0) {
 						newPos = { newPos.x, tilePos.y - (Tile::DEFAULT_SIZE / 2) };
+						player.SetPos(newPos);
 					}
 
+
 				}
+
 			}
 			else if (tile->Code() == WallTile::CODE) {
-				if (tileBounds.contains(currPosPlayerCenterRight)) {
-					auto diff = currPosPlayerCenterRight - tilePos;
+				if ((tileBounds.contains(currPosPlayerCenterLeft)) || (tileBounds.contains(currPosPlayerCenterRight))) {
+					if (tileBounds.contains(currPosPlayerCenterRight)) {
+						auto diff = currPosPlayerCenterRight - tilePos;
 
-					// Calculate the angle in radians
-					double angle_radians = std::atan2(-diff.y, diff.x);
-					// Convert radians to degrees
-					double angle_degrees = angle_radians * (180.0 / M_PI);
+						// Calculate the angle in radians
+						double angle_radians = std::atan2(-diff.y, diff.x);
+						// Convert radians to degrees
+						double angle_degrees = angle_radians * (180.0 / M_PI);
 
-					//esta a la izquierda
-					std::cout << angle_degrees << std::endl;
-					if (angle_degrees >= 0 && angle_degrees <= 90 || angle_degrees < 360 && angle_degrees >= 270) {
-						newPos = { tilePos.x - (Tile::DEFAULT_SIZE), (newPos.y) };
+						//esta a la izquierda
+						//std::cout << angle_degrees << std::endl;
+						if ((angle_degrees >= 90 && angle_degrees <= 180 || angle_degrees <= -90 && angle_degrees >= -180)) {
+							//if (tileBounds.intersects(player.GetGlobalBounds())) {
+							//if (true && diffPrev.x < 0) {
+							newPos = { tilePos.x - (Tile::DEFAULT_SIZE / 2) - (player.GetWidth() / 2), (newPos.y) };
+							player.SetPos(newPos);
+						}
+
 					}
+					else if (tileBounds.contains(currPosPlayerCenterLeft)) {
+						auto diff = currPosPlayerCenterLeft - tilePos;
 
-				}
-				if (tileBounds.contains(currPosPlayerCenterLeft)) {
-					auto diff = currPosPlayerCenterLeft - tilePos;
+						// Calculate the angle in radians
+						double angle_radians = std::atan2(-diff.y, diff.x);
+						// Convert radians to degrees
+						double angle_degrees = angle_radians * (180.0 / M_PI);
 
-					// Calculate the angle in radians
-					double angle_radians = std::atan2(-diff.y, diff.x);
-					// Convert radians to degrees
-					double angle_degrees = angle_radians * (180.0 / M_PI);
+						//esta a la derecha
+						//std::cout << angle_degrees << std::endl;
+						if (angle_degrees >= -90 && angle_degrees <= 90) {
+							newPos = { tilePos.x + (Tile::DEFAULT_SIZE / 2) + (player.GetWidth() / 2), (newPos.y) };
+							player.SetPos(newPos);
+						}
 
-					//esta a la izquierda
-					std::cout << angle_degrees << std::endl;
-					if (angle_degrees >= 90 && angle_degrees <= 270) {
-						newPos = { tilePos.x + (Tile::DEFAULT_SIZE), (newPos.y) };
 					}
-
 				}
 			}
 
-
-			player.SetPos(newPos);
 		}
-
+	
 	}
 };
 

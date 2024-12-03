@@ -25,10 +25,10 @@ private:
 	float vel = 0.f;
 	float acc_default = 100.f;
 	float deacc_default = 200.f;
-	float max_vel = 300.f;
+	float max_vel = 150.f;
 
 	float vel_up = 0.f;
-	float max_vel_up = -750.f;
+	float max_vel_up = -600.f;
 
 	bool to_right = true;
 	bool is_attacking = false;
