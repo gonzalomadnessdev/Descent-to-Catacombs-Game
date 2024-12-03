@@ -14,14 +14,14 @@ class Stage : public AbstractEntity
 {
 private:
 	int stage[18][33] = { // tiene uno extra para fixear la caida
-		{ 2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -77,8 +77,8 @@ public:
 		sf::Vector2f newPos = currPosPlayer;
 
 		sf::Vector2f currPosPlayerCenter = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight() / 2) };
-		sf::Vector2f currPosPlayerCenterRight = { currPosPlayer.x + (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2)};
-		sf::Vector2f currPosPlayerCenterLeft = { currPosPlayer.x - (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2)};
+		sf::Vector2f currPosPlayerCenterRight = { currPosPlayer.x + (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
+		sf::Vector2f currPosPlayerCenterLeft = { currPosPlayer.x - (player.GetWidth() / 2), currPosPlayer.y - (player.GetHeight() / 2) };
 		sf::Vector2f currPosPlayerCenterTop = { currPosPlayer.x, currPosPlayer.y - (player.GetHeight()) };
 
 		for (auto tile : tiles) {
@@ -139,5 +139,6 @@ public:
 			player.SetPos(newPos);
 		}
 
+	}
 };
 
