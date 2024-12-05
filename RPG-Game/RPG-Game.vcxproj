@@ -138,9 +138,11 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="FloorTile.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Stage.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="WallTile.cpp" />
   </ItemGroup>
@@ -149,9 +151,11 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="FloorTile.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Stage.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="WallTile.h" />
   </ItemGroup>

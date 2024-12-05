@@ -9,6 +9,8 @@
 #include <vector>
 #include "AbstractEntity.h"
 #include "Enemy.h"
+#include "Text.h"
+#include "HealthBar.h"
 
 class Game {
 
@@ -22,9 +24,13 @@ private:
 	Stage stage;
 	std::vector<Enemy*> enemies;
 
+	//Text* healthBar;
+	HealthBar* healthBar;
+
 	void Initialize() {
 
-		
+		healthBar = new HealthBar(siegward.GetPos(), 100, 5, siegward.getHealth());
+		healthBar->SetOrigin({ 50, 10.f + siegward.GetHeight() });
 
 		window.setFramerateLimit(60);
 		window.setKeyRepeatEnabled(false);
@@ -36,7 +42,9 @@ private:
 
 		enemies.push_back((new Enemy())->SetPos({ 1000,80 })->SetTiles(stage.GetTiles()));
 		enemies.push_back((new Enemy())->SetPos({ 160,320 })->SetTiles(stage.GetTiles()));
-		enemies.push_back((new Enemy())->SetPos({ 800,320 })->SetTiles(stage.GetTiles())->SetVel(-1.2f)->SetForward(false));
+		enemies.push_back((new Enemy())->SetPos({ 800,320 })->SetTiles(stage.GetTiles())->SetVel(1.2f)->SetForward(false));
+		enemies.push_back((new Enemy())->SetPos({ 800,520 })->SetTiles(stage.GetTiles())->SetVel(1.2f)->SetForward(false));
+		enemies.push_back((new Enemy())->SetPos({ 160,520 })->SetTiles(stage.GetTiles())->SetVel(1.5f));
 
 
 		for (auto enemy : enemies) {
@@ -70,6 +78,44 @@ private:
 		siegward.ApplyGravity();
 		siegward.checkFallingState(stage.GetTiles());
 		stage.checkCollisions(siegward);
+		
+		bool encontroEnemigo = false;
+		std::vector<Enemy*>::iterator itEnemyHitted;
+		for (auto it = enemies.begin(); it != enemies.end();++it) {
+			if (siegward.isHittedBySword((*it)->GetGlobalBounds())) {
+				//std::cout << "lo golpea" << std::endl;
+				itEnemyHitted = it;
+				encontroEnemigo = true;
+				break;
+			}	
+		}
+		if (encontroEnemigo) {
+			(*itEnemyHitted)->takeDamage(siegward.getDamage());
+			std::cout << "enemy health: " << (*itEnemyHitted)->getHealth() << std::endl;
+			if (!(*itEnemyHitted)->isAlive()) {
+				enemies.erase(itEnemyHitted);
+			}
+		}
+
+		bool enemigoTocaPlayer = false;
+		std::vector<Enemy*>::iterator itEnemyHitter;
+		for (auto it = enemies.begin(); it != enemies.end();++it) {
+
+			if ((*it)->GetGlobalBounds().contains(siegward.GetPosCenter())) {
+				std::cout << "me tocan" << std::endl;
+				itEnemyHitter = it;
+				enemigoTocaPlayer = true;
+				break;
+			}
+		}
+
+		if (enemigoTocaPlayer) {
+			int dmg = (*itEnemyHitter)->getDamage();
+			siegward.takeDamage(dmg);
+			std::cout << "siegward health: " << siegward.getHealth() << std::endl;
+
+		}
+
 
 		//std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
 		if (siegward.GetPos().y > height * 1.5) {
@@ -85,7 +131,12 @@ private:
 		}
 
 		stage.Update();
-		std::cout << siegward.isFalling() << std::endl;
+
+		healthBar->SetHealth(siegward.getHealth());
+		healthBar->SetPosition(siegward.GetPos());
+		healthBar->Update();
+		//healthBar->SetString("Health: " + std::to_string(siegward.getHealth()));
+		//std::cout << siegward.isFalling() << std::endl;
 	}
 
 	void Render() {
@@ -96,37 +147,34 @@ private:
 
 	void Draw() {
 
-		for (auto entity : entities) {
-			entity->Draw(window);
+		//for (auto entity : entities) {
+		//	entity->Draw(window);
+		//}
+
+		siegward.Draw(window);
+		for (auto enemy : enemies) {
+			enemy->Draw(window);
 		}
+		stage.Draw(window);
+		healthBar->Draw(window);
 
 		//game over region
 		if (!siegward.isAlive()) {
 			//mover todo esto a una clase texto
+			
+			Text gameoverTxt(40, sf::Color::White);
+			gameoverTxt.SetString("Game Over");
+			gameoverTxt.CenterOrigin();
+			gameoverTxt.SetPos((width / 2), (height / 2));
 
-			sf::Text text;
-			sf::Font font;
-			if (!font.loadFromFile("./fonts/pirata.ttf")) {
-				// Handle error if font is not loaded
-				exit(-1);
-			}
-			// select the font
-			text.setFont(font); // font is a sf::Font
 
-			// set the string to display
-			text.setString("Game Over");
+			//auto bounds = text.getGlobalBounds();
+			//text.setPosition;
 
-			// set the character size
-			text.setCharacterSize(40); // in pixels, not points!
-
-			// set the color
-			text.setFillColor(sf::Color::White);
-
-			auto bounds = text.getGlobalBounds();
-			text.setPosition((width / 2) - (bounds.width / 2), (height / 2) - (bounds.height / 2));
-
-			window.draw(text);
+			gameoverTxt.Draw(window);
 		}
+
+
 		//end game over region
 	}
 

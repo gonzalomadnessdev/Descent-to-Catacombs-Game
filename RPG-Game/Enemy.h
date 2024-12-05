@@ -26,6 +26,9 @@ private:
 
 	float vel = 1.0f;
 
+	int health = 1000;
+	int damage = 10;
+
 public:
 	
 	Enemy()
@@ -43,6 +46,18 @@ public:
 		sprite.setScale({ 1,1 });
 
 	}
+
+	int getHealth() const { return health; };
+	int getDamage() const { return damage; };
+	void takeDamage(int dmg) {
+		health -= dmg;
+		if (health < 0) health = 0;
+	};
+	void Kill() {
+		health = 0;
+	};
+
+	bool isAlive() { return health > 0; };
 
 	//sf::Vector2f GetPos() {
 	//	return sprite.getPosition();
@@ -162,5 +177,12 @@ public:
 		go_forward = isForward;
 		return this;
 	}
+
+	sf::FloatRect GetGlobalBounds() {
+		return sprite.getGlobalBounds();
+	}
+
+
+
 };
 

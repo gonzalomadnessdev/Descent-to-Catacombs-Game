@@ -41,7 +41,8 @@ private:
 
 	sf::Vector2f prevPos;
 
-	int health = 100;
+	int health = 3000;
+	int damage = 20;
 
 public:
 	int GetDrawOrder() override { return 2; };
@@ -67,6 +68,7 @@ public:
 	}
 
 	int getHealth() const { return health; };
+	int getDamage() const { return damage; };
 	void takeDamage(int dmg) { 
 		health -= dmg;
 		if (health < 0) health = 0;
@@ -91,6 +93,11 @@ public:
 		return { currPosPlayer.x - (GetWidth() / 4), currPosPlayer.y };
 	};
 
+	sf::Vector2f GetPosCenter() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x, currPosPlayer.y - (GetHeight() / 2) };
+	};
+
 	sf::Vector2f GetPosCenterRight() {
 		auto currPosPlayer = GetPos();
 		return { currPosPlayer.x + (GetWidth() / 2), currPosPlayer.y - (GetHeight() / 2) };
@@ -113,6 +120,10 @@ public:
 			}
 		}
 		is_falling = player_is_falling;
+	}
+
+	bool isHittedBySword(sf::FloatRect bounds) {
+		return sword_sprite.getGlobalBounds().intersects(bounds);
 	}
 };
 
