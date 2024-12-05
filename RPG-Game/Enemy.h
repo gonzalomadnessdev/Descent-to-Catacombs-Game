@@ -2,8 +2,9 @@
 #include <SFML/Graphics.hpp>
 #include "AbstractEntity.h"
 #include <vector>
-#include "Stage.h"
 #include "Tile.h"
+#include "FloorTile.h"
+#include "WallTile.h"
 #include "HealthBar.h"
 
 class Enemy : public AbstractEntity

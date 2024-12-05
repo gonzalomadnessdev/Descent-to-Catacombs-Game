@@ -18,7 +18,7 @@ private:
 	sf::RenderWindow window;
 	//sf::Clock clock;
 
-	std::vector<AbstractEntity*> entities;
+	//std::vector<AbstractEntity*> entities;
 
 	Player siegward;
 	Stage stage;
@@ -36,24 +36,21 @@ private:
 		window.setKeyRepeatEnabled(false);
 
 		//stage
-		entities.push_back(&stage);
+		//entities.push_back(&stage);
 
+		stage.LoadEnemies(enemies);
 		siegward.SetPos({80,80});
 
-		enemies.push_back((new Enemy())->SetPos({ 1000,80 })->SetTiles(stage.GetTiles()));
-		enemies.push_back((new Enemy())->SetPos({ 160,320 })->SetTiles(stage.GetTiles()));
-		enemies.push_back((new Enemy())->SetPos({ 800,320 })->SetTiles(stage.GetTiles())->SetVel(1.2f)->SetForward(false));
-		enemies.push_back((new Enemy())->SetPos({ 800,520 })->SetTiles(stage.GetTiles())->SetVel(1.2f)->SetForward(false));
-		enemies.push_back((new Enemy())->SetPos({ 160,520 })->SetTiles(stage.GetTiles())->SetVel(1.5f));
 
 
-		for (auto enemy : enemies) {
-			entities.push_back(enemy);
-		}
 
-		entities.push_back(&siegward);
+		//for (auto enemy : enemies) {
+		//	entities.push_back(enemy);
+		//}
 
-		sort(entities.begin(), entities.end(), [](AbstractEntity* e1, AbstractEntity* e2) { return e1->GetDrawOrder() < e2->GetDrawOrder();});
+		////entities.push_back(&siegward);
+
+		//sort(entities.begin(), entities.end(), [](AbstractEntity* e1, AbstractEntity* e2) { return e1->GetDrawOrder() < e2->GetDrawOrder();});
 	}
 
 	void ProcessEvents() {
