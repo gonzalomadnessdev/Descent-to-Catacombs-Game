@@ -1,9 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "AbstractEntity.h"
+#include <vector>
 #include "Stage.h"
 #include "Tile.h"
-#include <vector>
+#include "HealthBar.h"
 
 class Enemy : public AbstractEntity
 {
@@ -29,6 +30,8 @@ private:
 	int health = 1000;
 	int damage = 10;
 
+	HealthBar* healthBar;
+
 public:
 	
 	Enemy()
@@ -45,6 +48,13 @@ public:
 		sprite.setOrigin(width / 2, height);
 		sprite.setScale({ 1,1 });
 
+		float hb_width = 75;
+		healthBar = new HealthBar(0, 0 , hb_width, 4, health);
+		healthBar->SetOrigin({ hb_width / 2 , 10.f + height });
+	}
+
+	~Enemy() {
+		if (healthBar != nullptr) delete healthBar;
 	}
 
 	int getHealth() const { return health; };
@@ -74,6 +84,7 @@ public:
 	};
 
 	virtual void Draw(sf::RenderWindow& window) {
+		healthBar->Draw(window);
 		window.draw(sprite);
 	};
 
@@ -147,6 +158,12 @@ public:
 				sprite.move({ vel,0 });
 			}
 		}
+
+
+		//healthbar
+		healthBar->SetHealth(health);
+		healthBar->SetPosition(sprite.getPosition());
+		healthBar->Update();
 	};
 
 	Enemy* SetPos(sf::Vector2<float> pos) {

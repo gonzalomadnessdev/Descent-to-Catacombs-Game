@@ -150,12 +150,12 @@ private:
 		//for (auto entity : entities) {
 		//	entity->Draw(window);
 		//}
-
-		siegward.Draw(window);
+		stage.Draw(window);
 		for (auto enemy : enemies) {
 			enemy->Draw(window);
 		}
-		stage.Draw(window);
+		siegward.Draw(window);
+
 		healthBar->Draw(window);
 
 		//game over region
