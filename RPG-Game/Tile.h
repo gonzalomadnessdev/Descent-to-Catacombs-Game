@@ -5,27 +5,33 @@
 class Tile : public AbstractEntity
 {
 public:	
-	Tile(float posx = 0, float posy = 0) : shape(sf::Vector2f(DEFAULT_SIZE, DEFAULT_SIZE))
+	Tile(float posx = 0, float posy = 0) 
 	{
+
+		image.loadFromFile("./img/block.png");
+		image.createMaskFromColor(sf::Color::Red);
+		texture.loadFromImage(image);
+		sprite.setTexture(texture);
+
 		int originX, originY;
 		originX = originY = (DEFAULT_SIZE / 2);
-		shape.setOrigin(originX, originY);
-		shape.setPosition({ posx + originX, posy + originY });
+		sprite.setOrigin(originX, originY);
+		sprite.setPosition({ posx + originX, posy + originY });
 	}
 
 	void Draw(sf::RenderWindow& window) {
-		window.draw(shape);
+		window.draw(sprite);
 	}
 
 	void Update() {
 	}
 
 	sf::FloatRect GetGlobalBounds() {
-		return shape.getGlobalBounds();
+		return sprite.getGlobalBounds();
 	}
 
 	sf::Vector2f GetPosition() const {
-		return shape.getPosition();
+		return sprite.getPosition();
 	}
 
 	virtual int Code() = 0;
@@ -33,7 +39,11 @@ public:
 	static const int DEFAULT_SIZE = 40;
 
 protected:
-	sf::RectangleShape shape;
+	//sf::RectangleShape shape;
+
+	sf::Texture texture;
+	sf::Image image;
+	sf::Sprite sprite;
 
 };
 
