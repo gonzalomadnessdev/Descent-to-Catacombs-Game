@@ -16,18 +16,26 @@ class Game {
 
 private:
 	sf::RenderWindow window;
-	//sf::Clock clock;
 
-	//std::vector<AbstractEntity*> entities;
+	int current_stage = 1;
+	int last_stage = 2;
+
+	sf::Vector2f player_initial_pos = { 80,0 };
 
 	Player siegward;
-	Stage stage;
+	Stage* stage;
 	std::vector<Enemy*> enemies;
 
-	//Text* healthBar;
 	HealthBar* healthBar;
 
+	Text* stageText;
+
+	Enemy* finalBoss = nullptr;
+
 	void Initialize() {
+
+		stageText = new Text(20, sf::Color::White);
+		stageText->SetPos(10, 10);
 
 		healthBar = new HealthBar(siegward.GetPos(), 100, 5, siegward.getHealth());
 		healthBar->SetOrigin({ 50, 10.f + siegward.GetHeight() });
@@ -35,22 +43,9 @@ private:
 		window.setFramerateLimit(60);
 		window.setKeyRepeatEnabled(false);
 
-		//stage
-		//entities.push_back(&stage);
-
-		stage.LoadEnemies(enemies);
-		siegward.SetPos({80,80});
-
-
-
-
-		//for (auto enemy : enemies) {
-		//	entities.push_back(enemy);
-		//}
-
-		////entities.push_back(&siegward);
-
-		//sort(entities.begin(), entities.end(), [](AbstractEntity* e1, AbstractEntity* e2) { return e1->GetDrawOrder() < e2->GetDrawOrder();});
+		stage = new Stage(current_stage);
+		stage->LoadEnemies(enemies);
+		siegward.SetPos(player_initial_pos);
 	}
 
 	void ProcessEvents() {
@@ -63,6 +58,7 @@ private:
 	}
 
 	void Update() {
+		stageText->SetString("Stage : " + std::to_string(current_stage));
 		sf::Vector2f playerPos = siegward.GetPos();
 
 		if (playerPos.x > width) {
@@ -73,8 +69,8 @@ private:
 		}
 
 		siegward.ApplyGravity();
-		siegward.checkFallingState(stage.GetTiles());
-		stage.checkCollisions(siegward);
+		siegward.checkFallingState(stage->GetTiles());
+		stage->checkCollisions(siegward);
 		
 		bool encontroEnemigo = false;
 		std::vector<Enemy*>::iterator itEnemyHitted;
@@ -110,13 +106,33 @@ private:
 			int dmg = (*itEnemyHitter)->getDamage();
 			siegward.takeDamage(dmg);
 			std::cout << "siegward health: " << siegward.getHealth() << std::endl;
-
 		}
 
 
+
 		//std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
-		if (siegward.GetPos().y > height * 1.5) {
-			siegward.Kill();
+		if (siegward.GetPos().y > height * 1.2) {
+			if (current_stage < last_stage) {
+				current_stage++;
+				
+				delete stage;
+				stage = nullptr;
+
+				enemies.clear();
+				stage = new Stage(current_stage);
+				stage->LoadEnemies(enemies);
+				auto pos = siegward.GetPos();
+				pos.y = 0;
+				siegward.SetPos(pos);
+
+				if (current_stage == last_stage) {
+					finalBoss =enemies[0];
+				}
+			}
+			else {
+				siegward.Kill();
+			}
+			
 		}
 
 		//for (auto entity : entities) {
@@ -127,7 +143,7 @@ private:
 			enemy->Update();
 		}
 
-		stage.Update();
+		stage->Update();
 
 		healthBar->SetHealth(siegward.getHealth());
 		healthBar->SetPosition(siegward.GetPos());
@@ -144,10 +160,13 @@ private:
 
 	void Draw() {
 
+		
 		//for (auto entity : entities) {
 		//	entity->Draw(window);
 		//}
-		stage.Draw(window);
+		stage->Draw(window);
+		
+
 		for (auto enemy : enemies) {
 			enemy->Draw(window);
 		}
@@ -155,6 +174,7 @@ private:
 
 		healthBar->Draw(window);
 
+		stageText->Draw(window);
 		//game over region
 		if (!siegward.isAlive()) {
 			//mover todo esto a una clase texto
@@ -173,6 +193,21 @@ private:
 
 
 		//end game over region
+
+		//win region
+		if (finalBoss != nullptr && !finalBoss->isAlive()) {
+			Text winTxt(40, sf::Color::White);
+			winTxt.SetString("You've killed the menace in the catacombs. Congratulations!");
+			winTxt.CenterOrigin();
+			winTxt.SetPos((width / 2), (height / 2));
+
+
+			//auto bounds = text.getGlobalBounds();
+			//text.setPosition;
+
+			winTxt.Draw(window);
+		}
+		//end win region
 	}
 
 public:
@@ -192,7 +227,7 @@ public:
 		{
 			ProcessEvents();
 
-			if (siegward.isAlive()) {
+			if (siegward.isAlive() && (finalBoss == nullptr || finalBoss->isAlive())) {
 				Update();
 			}
 

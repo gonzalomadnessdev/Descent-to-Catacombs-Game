@@ -11,37 +11,38 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Enemy.h"
+#include <fstream>
+
+struct EnemyRecord {
+	float x;
+	float y;
+	float vel;
+	bool forward;
+};
 
 class Stage : public AbstractEntity
 {
 private:
-	int stage[18][33] = { // tiene uno extra para fixear la caida
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{ 1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	};
+	int x_max = 33;
+	int y_max = 18;
+	int stage_num = 1;
+
+	int stage[18][33];
 
 	std::vector<Tile*> tiles;
 	sf::Sprite bgSprite;
 	sf::Texture bgtexture;
 
+	void LoadStage() {
+		std::ifstream file(("data/stages/" + std::to_string(stage_num) + ".stg"), std::ios::binary);
+		file.read(reinterpret_cast<char*>(&stage), sizeof(stage));
+	}
+
 public:
-	Stage() {
+	Stage(int num) : stage_num(num) {
+
+		LoadStage();
+
 		for (size_t i = 0; i < 18; i++)
 		{
 			for (size_t j = 0; j < 33; j++)
@@ -69,12 +70,23 @@ public:
 		bgSprite.setTexture(bgtexture);
 	}
 
+
+
+
+
+
 	void LoadEnemies(std::vector<Enemy*>& enemies) {
-		enemies.push_back((new Enemy())->SetPos({ 1000,80 })->SetTiles(tiles));
-		enemies.push_back((new Enemy())->SetPos({ 160,320 })->SetTiles(tiles));
-		enemies.push_back((new Enemy())->SetPos({ 800,320 })->SetTiles(tiles)->SetVel(1.2f)->SetForward(false));
-		enemies.push_back((new Enemy())->SetPos({ 800,520 })->SetTiles(tiles)->SetVel(1.2f)->SetForward(false));
-		enemies.push_back((new Enemy())->SetPos({ 160,520 })->SetTiles(tiles)->SetVel(1.5f));
+
+		std::ifstream file(("data/enemies/stage_" + std::to_string(stage_num) + ".nmy"), std::ios::binary);
+
+		EnemyRecord er;
+		while (file.read(reinterpret_cast<char*>(&er), sizeof(er))) {
+			Enemy* e = new Enemy();
+			e->SetPos({ (float)er.x,(float)er.y });
+			e->SetTiles(tiles)->SetVel(er.vel)->SetForward(er.forward);
+
+			enemies.push_back(e);
+		}
 	}
 
 	void Draw(sf::RenderWindow& window) {
