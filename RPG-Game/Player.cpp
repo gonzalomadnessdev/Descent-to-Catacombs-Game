@@ -4,59 +4,6 @@
 #include <cmath>
 #include <iostream>
 
-Player::Player() {
-	pos_idle = sf::IntRect(((width) * 0), 0, width, height);
-	pos_walk = sf::IntRect(((width) * 1), 0, width, height);
-	pos_attk = sf::IntRect(((width) * 2), 0, width, height);
-	pos_current = pos_idle;
-
-	image.loadFromFile("./img/siegward_spritesheet.png");
-	image.createMaskFromColor(sf::Color::Red);
-
-	sf::Image swordImage;
-	swordImage.loadFromFile("./img/sword.png");
-	swordImage.createMaskFromColor(sf::Color::Red);
-
-	sword_texture.loadFromImage(swordImage);
-	sword_sprite.setTexture(sword_texture);
-
-	sword_sprite.setOrigin(-(width / 2.5f), (sword_sprite.getLocalBounds().height / 2));
-
-	texture.loadFromImage(image, pos_current);
-	sprite.setTexture(texture);
-
-	sprite.setOrigin(width / 2, height);
-	sprite.setScale({1,1});
-
-	prevPos = GetPos();
-}
-
-sf::Vector2f Player::GetPos() {
-	return sprite.getPosition();
-}
-
-void Player::SetPos(sf::Vector2<float> pos) {
-	sprite.setPosition(pos);
-}
-
-void Player::SetVel(float vel) {
-	this->vel = vel;
-}
-
-void Player::Draw(sf::RenderWindow& window) {
-	window.draw(sprite);
-	window.draw(sword_sprite);
-
-}
-
-bool Player::isLookingToRight(){
-	return to_right;
-}
-
-bool Player::isLookingToLeft() {
-	return !to_right;
-}
-
 void Player::ApplyGravity() {
 	auto pos = GetPos();
 	pos.y += 6;
@@ -66,17 +13,6 @@ void Player::ApplyGravity() {
 }
 
 void Player::Update() {
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-	//	
-	//}
-	//else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-	//	to_right = false;
-	//}
-	prevPos = GetPos();
-
-	//std::cout << is_falling << std::endl;
-	
-
 	is_attacking = false;
 	
 	tick_changepos++;

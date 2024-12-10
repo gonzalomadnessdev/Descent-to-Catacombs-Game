@@ -19,6 +19,7 @@ protected:
 	int health = 1000;
 	int damage = 10;
 
+	sf::IntRect pos_current;
 	sf::IntRect pos_idle;
 
 	float hb_width;
@@ -30,13 +31,13 @@ public:
 		: spriteFilePath(_spriteFilePath), width(_width), height(_height), health(_health), damage(_damage), hb_width(_hb_width)
 	{
 		if(hb_width == 0) hb_width = width * .7f;
-		pos_idle = sf::IntRect(0, 0, width, height);
+		pos_current = pos_idle = sf::IntRect(0, 0, width, height);
 
 		image.loadFromFile(spriteFilePath);
 		image.createMaskFromColor(sf::Color::Red);
 
 
-		texture.loadFromImage(image, pos_idle);
+		texture.loadFromImage(image, pos_current);
 		sprite.setTexture(texture);
 
 		sprite.setOrigin(width / 2, height);
@@ -66,9 +67,26 @@ public:
 
 	int getHealth() const { return health; };
 	int getDamage() const { return damage; };
+	int GetWidth() const { return width; };
+	int GetHeight() const { return height; };
 
 	sf::Vector2f GetPos() {
 		return sprite.getPosition();
+	};
+
+	sf::Vector2f GetPosBottomRight() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x + (width / 4), currPosPlayer.y };
+	};
+
+	sf::Vector2f GetPosBottomLeft() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x - (width / 4), currPosPlayer.y };
+	};
+
+	sf::Vector2f GetPosCenter() {
+		auto currPosPlayer = GetPos();
+		return { currPosPlayer.x, currPosPlayer.y - (GetHeight() / 2) };
 	};
 
 	sf::Vector2f GetPosCenterRight() {
@@ -89,4 +107,6 @@ public:
 		sprite.setPosition(pos);
 		return this;
 	};
+
+
 };

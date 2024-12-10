@@ -2,27 +2,18 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <vector>
-#include "AbstractEntity.h"
+#include "Character.h"
 #include "Tile.h"
 #include "FloorTile.h"
 
-class Player : public AbstractEntity
+class Player : public Character
 {
 private:
-	sf::Sprite sprite;
 	sf::Sprite sword_sprite;
-	sf::Texture texture;
 	sf::Texture sword_texture;
-	sf::Image image;
 
-	sf::IntRect pos_current;
-	sf::IntRect pos_idle;
 	sf::IntRect pos_walk;
 	sf::IntRect pos_attk;
-	//sf::IntRect pos_walk_l;
-
-	int width = 77;
-	int height = 63;
 
 	float vel = 0.f;
 	float acc_default = 100.f;
@@ -37,66 +28,50 @@ private:
 	bool is_falling = true;
 
 	int tick_changepos = 0;
-	void SetVel(float vel);
-
-	sf::Vector2f prevPos;
 
 	int health = 3000;
 	int damage = 20;
 
 public:
-	int GetDrawOrder() override { return 2; };
 
-	Player();
-	void Draw(sf::RenderWindow& window);
+	Player() : Character("./img/siegward_spritesheet.png", 77, 63, 3000, 20, 80){
+		pos_walk = sf::IntRect(((width) * 1), 0, width, height);
+		pos_attk = sf::IntRect(((width) * 2), 0, width, height);
+
+		sf::Image swordImage;
+		swordImage.loadFromFile("./img/sword.png");
+		swordImage.createMaskFromColor(sf::Color::Red);
+
+		sword_texture.loadFromImage(swordImage);
+		sword_sprite.setTexture(sword_texture);
+
+		sword_sprite.setOrigin(-(width / 2.5f), (sword_sprite.getLocalBounds().height / 2));
+	};
+
+	void Draw(sf::RenderWindow& window) {
+		Character::Draw(window);
+		window.draw(sword_sprite);
+	};
+
 	void Update();
-	void SetPos(sf::Vector2<float> pos);
 	void ApplyGravity();
-	bool isLookingToRight();
-	bool isLookingToLeft();
 
-	int GetWidth() const { return width; }
-	int GetHeight() const { return height; }
+	bool isLookingToRight() {
+		return to_right;
+	};
+	bool isLookingToLeft() {
+		return !to_right;
+	};
 
 	void SetIsFalling(bool isfalling) { is_falling = isfalling; };
 
-	sf::Vector2f GetPos();
-	sf::Vector2f GetPrevPos() const { return prevPos; }
-
-	sf::FloatRect GetGlobalBounds() {
-		return sprite.getGlobalBounds();
-	}
-
-	int getHealth() const { return health; };
-	int getDamage() const { return damage; };
-	void takeDamage(int dmg) { 
-		health -= dmg;
-		if (health < 0) health = 0;
+	void SetVel(float vel) {
+		this->vel = vel;
 	};
-	void Kill() {
-		health = 0;
-	};
-
-	bool isAlive() { return health > 0; };
 
 	bool isFalling() {
 		return is_falling;
 	}
-
-	sf::Vector2f GetPosBottomRight(){ 
-		auto currPosPlayer = GetPos();
-		return { currPosPlayer.x + (GetWidth() / 4), currPosPlayer.y };
-	};
-
-	sf::Vector2f GetPosBottomLeft() {
-		auto currPosPlayer = GetPos();
-		return { currPosPlayer.x - (GetWidth() / 4), currPosPlayer.y };
-	};
-
-	sf::Vector2f GetPosCenter() {
-		auto currPosPlayer = GetPos();
-		return { currPosPlayer.x, currPosPlayer.y - (GetHeight() / 2) };
-	};
 
 	sf::Vector2f GetPosCenterRight() {
 		auto currPosPlayer = GetPos();
