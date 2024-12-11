@@ -29,10 +29,10 @@ private:
 
 	int tick_changepos = 0;
 
-	int health = 3000;
-	int damage = 20;
+	sf::Vector2f swordHiddenPos = { -100000.f, -100000.f };
 
 public:
+	inline static const int CHARACTER_CODE = 1; 
 
 	Player() : Character("./img/siegward_spritesheet.png", 77, 63, 3000, 20, 80){
 		pos_walk = sf::IntRect(((width) * 1), 0, width, height);
@@ -46,6 +46,7 @@ public:
 		sword_sprite.setTexture(sword_texture);
 
 		sword_sprite.setOrigin(-(width / 2.5f), (sword_sprite.getLocalBounds().height / 2));
+		sword_sprite.setPosition(swordHiddenPos);
 	};
 
 	void Draw(sf::RenderWindow& window) {

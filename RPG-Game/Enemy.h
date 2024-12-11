@@ -21,7 +21,8 @@ private:
 	float vel = 1.0f;
 
 public:
-	
+	inline static const int CHARACTER_CODE = 3;
+
 	Enemy() : Character("./img/enemy_spritesheet.png", 66, 63, 1000, 10)
 	{
 	}

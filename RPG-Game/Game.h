@@ -18,34 +18,36 @@ private:
 	sf::RenderWindow window;
 
 	int current_stage = 1;
-	int last_stage = 2;
+	int last_stage = 3;
 
 	sf::Vector2f player_initial_pos = { 80,0 };
 
-	Player siegward;
+	Player* siegward;
 	Stage* stage;
-	std::vector<Enemy*> enemies;
+	std::vector<Character*> enemies;
 
 	HealthBar* healthBar;
 
 	Text* stageText;
 
-	Enemy* finalBoss = nullptr;
+	Character* finalBoss = nullptr;
 
 	void Initialize() {
+
+		siegward = new Player();
 
 		stageText = new Text(20, sf::Color::White);
 		stageText->SetPos(10, 10);
 
-		healthBar = new HealthBar(siegward.GetPos(), 100, 5, siegward.getHealth());
-		healthBar->SetOrigin({ 50, 10.f + siegward.GetHeight() });
+		healthBar = new HealthBar(siegward->GetPos(), 100, 5, siegward->getHealth());
+		healthBar->SetOrigin({ 50, 10.f + siegward->GetHeight() });
 
 		window.setFramerateLimit(60);
 		window.setKeyRepeatEnabled(false);
 
 		stage = new Stage(current_stage);
-		stage->LoadEnemies(enemies);
-		siegward.SetPos(player_initial_pos);
+		stage->LoadEnemies(enemies, siegward);
+		siegward->SetPos(player_initial_pos);
 	}
 
 	void ProcessEvents() {
@@ -59,43 +61,40 @@ private:
 
 	void Update() {
 		stageText->SetString("Stage : " + std::to_string(current_stage));
-		sf::Vector2f playerPos = siegward.GetPos();
+		sf::Vector2f playerPos = siegward->GetPos();
 
 		if (playerPos.x > width) {
-			siegward.SetPos(sf::Vector2f(width, playerPos.y));
+			siegward->SetPos(sf::Vector2f(width, playerPos.y));
 		}
 		else if (playerPos.x < 0) {
-			siegward.SetPos(sf::Vector2f(0, playerPos.y));
+			siegward->SetPos(sf::Vector2f(0, playerPos.y));
 		}
 
-		siegward.ApplyGravity();
-		siegward.checkFallingState(stage->GetTiles());
+		siegward->ApplyGravity();
+		siegward->checkFallingState(stage->GetTiles());
 		stage->checkCollisions(siegward);
 		
 		bool encontroEnemigo = false;
-		std::vector<Enemy*>::iterator itEnemyHitted;
+		std::vector<Character*>::iterator itEnemyHitted;
 		for (auto it = enemies.begin(); it != enemies.end();++it) {
-			if (siegward.isHittedBySword((*it)->GetGlobalBounds())) {
-				//std::cout << "lo golpea" << std::endl;
+			if (siegward->isHittedBySword((*it)->GetGlobalBounds())) {
 				itEnemyHitted = it;
 				encontroEnemigo = true;
 				break;
 			}	
 		}
 		if (encontroEnemigo) {
-			(*itEnemyHitted)->takeDamage(siegward.getDamage());
-			std::cout << "enemy health: " << (*itEnemyHitted)->getHealth() << std::endl;
+			(*itEnemyHitted)->takeDamage(siegward->getDamage());
 			if (!(*itEnemyHitted)->isAlive()) {
 				enemies.erase(itEnemyHitted);
 			}
 		}
 
 		bool enemigoTocaPlayer = false;
-		std::vector<Enemy*>::iterator itEnemyHitter;
+		std::vector<Character*>::iterator itEnemyHitter;
 		for (auto it = enemies.begin(); it != enemies.end();++it) {
 
-			if ((*it)->GetGlobalBounds().contains(siegward.GetPosCenter())) {
-				std::cout << "me tocan" << std::endl;
+			if ((*it)->GetGlobalBounds().contains(siegward->GetPosCenter())) {
 				itEnemyHitter = it;
 				enemigoTocaPlayer = true;
 				break;
@@ -104,14 +103,10 @@ private:
 
 		if (enemigoTocaPlayer) {
 			int dmg = (*itEnemyHitter)->getDamage();
-			siegward.takeDamage(dmg);
-			std::cout << "siegward health: " << siegward.getHealth() << std::endl;
+			siegward->takeDamage(dmg);
 		}
 
-
-
-		//std::cout << siegward.GetPos().x << " | " << siegward.GetPos().y << std::endl;
-		if (siegward.GetPos().y > height * 1.2) {
+		if (siegward->GetPos().y > height * 1.2) {
 			if (current_stage < last_stage) {
 				current_stage++;
 				
@@ -120,17 +115,17 @@ private:
 
 				enemies.clear();
 				stage = new Stage(current_stage);
-				stage->LoadEnemies(enemies);
-				auto pos = siegward.GetPos();
+				stage->LoadEnemies(enemies, siegward);
+				auto pos = siegward->GetPos();
 				pos.y = 0;
-				siegward.SetPos(pos);
+				siegward->SetPos(pos);
 
 				if (current_stage == last_stage) {
-					finalBoss =enemies[0];
+					finalBoss = enemies[0];
 				}
 			}
 			else {
-				siegward.Kill();
+				siegward->Kill();
 			}
 			
 		}
@@ -138,18 +133,16 @@ private:
 		//for (auto entity : entities) {
 		//	entity->Update();
 		//}
-		siegward.Update();
+		siegward->Update();
 		for (auto enemy : enemies) {
 			enemy->Update();
 		}
 
 		stage->Update();
 
-		healthBar->SetHealth(siegward.getHealth());
-		healthBar->SetPosition(siegward.GetPos());
+		healthBar->SetHealth(siegward->getHealth());
+		healthBar->SetPosition(siegward->GetPos());
 		healthBar->Update();
-		//healthBar->SetString("Health: " + std::to_string(siegward.getHealth()));
-		//std::cout << siegward.isFalling() << std::endl;
 	}
 
 	void Render() {
@@ -170,13 +163,13 @@ private:
 		for (auto enemy : enemies) {
 			enemy->Draw(window);
 		}
-		siegward.Draw(window);
+		siegward->Draw(window);
 
 		healthBar->Draw(window);
 
 		stageText->Draw(window);
 		//game over region
-		if (!siegward.isAlive()) {
+		if (!siegward->isAlive()) {
 			//mover todo esto a una clase texto
 			
 			Text gameoverTxt(40, sf::Color::White);
@@ -227,7 +220,7 @@ public:
 		{
 			ProcessEvents();
 
-			if (siegward.isAlive() && (finalBoss == nullptr || finalBoss->isAlive())) {
+			if (siegward->isAlive() && (finalBoss == nullptr || finalBoss->isAlive())) {
 				Update();
 			}
 

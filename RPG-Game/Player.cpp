@@ -77,7 +77,6 @@ void Player::Update() {
 
 	//aca?
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !is_falling && !is_attacking) {
-		//std::cout << "salta" << std::endl;
 		if (vel_up >= 0) vel_up = max_vel_up;
 	}
 
@@ -118,7 +117,7 @@ void Player::Update() {
 		}
 	}
 	else {
-		sword_sprite.setPosition(-100000, -100000);
+		sword_sprite.setPosition(swordHiddenPos);
 	}
 	
 	movement.x = (vel * delta_time) + ((pow(delta_time, 2) * acceleration) / 2);

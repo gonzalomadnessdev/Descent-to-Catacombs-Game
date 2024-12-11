@@ -137,6 +137,7 @@
     <ClCompile Include="AbstractEntity.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="FinalBoss.cpp" />
     <ClCompile Include="FloorTile.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HealthBar.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="AbstractEntity.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="FinalBoss.h" />
     <ClInclude Include="FloorTile.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="HealthBar.h" />

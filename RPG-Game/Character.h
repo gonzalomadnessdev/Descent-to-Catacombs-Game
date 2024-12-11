@@ -7,6 +7,7 @@
 class Character : public AbstractEntity
 {
 protected:
+
 	std::string spriteFilePath;
 
 	sf::Sprite sprite;
@@ -26,6 +27,7 @@ protected:
 	HealthBar* healthBar;
 
 public:
+	inline static const int CHARACTER_CODE = 0;
 
 	Character(std::string _spriteFilePath, int _width, int _height, int _health, int _damage, float _hb_width = 0)
 		: spriteFilePath(_spriteFilePath), width(_width), height(_height), health(_health), damage(_damage), hb_width(_hb_width)

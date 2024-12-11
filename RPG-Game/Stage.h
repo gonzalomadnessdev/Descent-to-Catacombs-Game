@@ -11,9 +11,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Enemy.h"
+#include "FinalBoss.h"
 #include <fstream>
 
 struct EnemyRecord {
+	int code;
 	float x;
 	float y;
 	float vel;
@@ -75,16 +77,25 @@ public:
 
 
 
-	void LoadEnemies(std::vector<Enemy*>& enemies) {
+	void LoadEnemies(std::vector<Character*>& enemies, Player* player) {
 
 		std::ifstream file(("data/enemies/stage_" + std::to_string(stage_num) + ".nmy"), std::ios::binary);
 
 		EnemyRecord er;
 		while (file.read(reinterpret_cast<char*>(&er), sizeof(er))) {
-			Enemy* e = new Enemy();
+			Character* e;
+			switch (er.code)
+			{
+			case FinalBoss::CHARACTER_CODE:
+				e = (new FinalBoss(player));
+				break;
+			case Enemy::CHARACTER_CODE:
+			default:
+				e = (new Enemy())->SetTiles(tiles)->SetVel(er.vel)->SetForward(er.forward);
+				break;
+			}
+			
 			e->SetPos({ (float)er.x,(float)er.y });
-			e->SetTiles(tiles)->SetVel(er.vel)->SetForward(er.forward);
-
 			enemies.push_back(e);
 		}
 	}
@@ -104,8 +115,8 @@ public:
 		return tiles;
 	}
 
-	void checkCollisions(Player& player) {
-		sf::Vector2f currPosPlayer = player.GetPos();
+	void checkCollisions(Player* player) {
+		sf::Vector2f currPosPlayer = player->GetPos();
 
 		sf::Vector2f newPos = currPosPlayer;
 
@@ -115,45 +126,37 @@ public:
 
 			if (tile->Code() == FloorTile::CODE) {
 
-				if (tileBounds.contains(player.GetPosBottomRight()) || tileBounds.contains(player.GetPosBottomLeft())) {
+				if (tileBounds.contains(player->GetPosBottomRight()) || tileBounds.contains(player->GetPosBottomLeft())) {
 					auto diff = currPosPlayer - tilePos;
 
-					// Calculate the angle in radians
 					double angle_radians = std::atan2(-diff.y, diff.x);
-					// Convert radians to degrees
 					double angle_degrees = angle_radians * (180.0 / M_PI);
 
 					//esta arriba
-					//std::cout << angle_degrees << std::endl;
 					if (angle_degrees >= 0 && angle_degrees <= 180) {
 						newPos = { newPos.x, tilePos.y - (Tile::DEFAULT_SIZE / 2) };
-						player.SetPos(newPos);
+						player->SetPos(newPos);
 					}
 				}
 
 			}
 			else if (tile->Code() == WallTile::CODE) {
-				if ((tileBounds.contains(player.GetPosCenterLeft())) || (tileBounds.contains(player.GetPosCenterRight()))) {
-					if (tileBounds.contains(player.GetPosCenterRight())) {
-						auto diff = player.GetPosCenterRight() - tilePos;
+				if ((tileBounds.contains(player->GetPosCenterLeft())) || (tileBounds.contains(player->GetPosCenterRight()))) {
+					if (tileBounds.contains(player->GetPosCenterRight())) {
+						auto diff = player->GetPosCenterRight() - tilePos;
 
-						// Calculate the angle in radians
 						double angle_radians = std::atan2(-diff.y, diff.x);
-						// Convert radians to degrees
 						double angle_degrees = angle_radians * (180.0 / M_PI);
 
 						//esta a la izquierda
-						//std::cout << angle_degrees << std::endl;
 						if ((angle_degrees >= 90 && angle_degrees <= 180 || angle_degrees <= -90 && angle_degrees >= -180)) {
-							//if (tileBounds.intersects(player.GetGlobalBounds())) {
-							//if (true && diffPrev.x < 0) {
-							newPos = { tilePos.x - (Tile::DEFAULT_SIZE / 2) - (player.GetWidth() / 2), (newPos.y) };
-							player.SetPos(newPos);
+							newPos = { tilePos.x - (Tile::DEFAULT_SIZE / 2) - (player->GetWidth() / 2), (newPos.y) };
+							player->SetPos(newPos);
 						}
 
 					}
-					else if (tileBounds.contains(player.GetPosCenterLeft())) {
-						auto diff = player.GetPosCenterLeft() - tilePos;
+					else if (tileBounds.contains(player->GetPosCenterLeft())) {
+						auto diff = player->GetPosCenterLeft() - tilePos;
 
 						// Calculate the angle in radians
 						double angle_radians = std::atan2(-diff.y, diff.x);
@@ -161,10 +164,9 @@ public:
 						double angle_degrees = angle_radians * (180.0 / M_PI);
 
 						//esta a la derecha
-						//std::cout << angle_degrees << std::endl;
 						if (angle_degrees >= -90 && angle_degrees <= 90) {
-							newPos = { tilePos.x + (Tile::DEFAULT_SIZE / 2) + (player.GetWidth() / 2), (newPos.y) };
-							player.SetPos(newPos);
+							newPos = { tilePos.x + (Tile::DEFAULT_SIZE / 2) + (player->GetWidth() / 2), (newPos.y) };
+							player->SetPos(newPos);
 						}
 
 					}
