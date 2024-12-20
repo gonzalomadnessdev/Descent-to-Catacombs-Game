@@ -110,5 +110,15 @@ public:
 		return this;
 	};
 
+	Character* SetDamageFactor(float f) {
+		damage = damage * f;
+		return this;
+	}
+
+	Character* SetHealthFactor(float f) {
+		health = health * f;
+		return this;
+	}
+
 
 };

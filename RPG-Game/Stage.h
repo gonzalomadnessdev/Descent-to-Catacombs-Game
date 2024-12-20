@@ -20,6 +20,8 @@ struct EnemyRecord {
 	float y;
 	float vel;
 	bool forward;
+	float healthF;
+	float damageF;
 };
 
 class Stage : public AbstractEntity
@@ -91,7 +93,7 @@ public:
 				break;
 			case Enemy::CHARACTER_CODE:
 			default:
-				e = (new Enemy())->SetTiles(tiles)->SetVel(er.vel)->SetForward(er.forward);
+				e = (new Enemy())->SetTiles(tiles)->SetVel(er.vel)->SetForward(er.forward)->SetDamageFactor(er.damageF)->SetHealthFactor(er.healthF);
 				break;
 			}
 			
