@@ -43,27 +43,29 @@ private:
 	}
 
 public:
-	Stage(int num) : stage_num(num) {
+	Stage(int num) : stage_num(num) {	
+		if (num > 0) {
+			LoadStage();
 
-		LoadStage();
-
-		for (size_t i = 0; i < 18; i++)
-		{
-			for (size_t j = 0; j < 33; j++)
+			for (size_t i = 0; i < 18; i++)
 			{
-				if (stage[i][j] != 0) {
-					//tiles.push_back(Tile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
-					if (stage[i][j] == 1) {
-						tiles.push_back(new FloorTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
-					}
-					else if (stage[i][j] == 2) {
-						tiles.push_back(new WallTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+				for (size_t j = 0; j < 33; j++)
+				{
+					if (stage[i][j] != 0) {
+						//tiles.push_back(Tile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+						if (stage[i][j] == 1) {
+							tiles.push_back(new FloorTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+						}
+						else if (stage[i][j] == 2) {
+							tiles.push_back(new WallTile((j * Tile::DEFAULT_SIZE), i * Tile::DEFAULT_SIZE));
+						}
 					}
 				}
 			}
+
+			std::sort(tiles.begin(), tiles.end(), [](Tile* t1, Tile* t2) { return t1->Code() < t2->Code(); });
 		}
 
-		std::sort(tiles.begin(), tiles.end(), [](Tile* t1, Tile* t2) { return t1->Code() < t2->Code(); });
 
 		//background
 		if (!bgtexture.loadFromFile("./img/background.png"))
@@ -73,11 +75,6 @@ public:
 
 		bgSprite.setTexture(bgtexture);
 	}
-
-
-
-
-
 
 	void LoadEnemies(std::vector<Character*>& enemies, Player* player) {
 

@@ -6,9 +6,9 @@
 class Text : public AbstractEntity
 {
 public:
-	Text(int size, sf::Color color)
-	{
-		if (!font.loadFromFile("./fonts/pirata.ttf")) {
+	Text(int size, sf::Color color, std::string fontName) {
+
+		if (!font.loadFromFile("./fonts/" + fontName +".ttf")) {
 			// Handle error if font is not loaded
 			exit(-1);
 		}
@@ -24,6 +24,10 @@ public:
 
 		// set the color
 		text.setFillColor(color);
+	}
+
+	Text(int size, sf::Color color) : Text(size, color, "pirata")
+	{
 	}
 
 	void Draw(sf::RenderWindow& window) override {
@@ -46,7 +50,6 @@ public:
 		auto bounds = text.getGlobalBounds();
 		text.setOrigin(bounds.width / 2, bounds.height / 2);
 	}
-	
 	
 
 private:

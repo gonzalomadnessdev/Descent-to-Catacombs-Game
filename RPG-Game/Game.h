@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <SFML/System/Time.hpp>
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -7,16 +7,33 @@
 #include "Player.h"
 #include "Stage.h"
 #include <vector>
+#include <sstream>
+#include <iomanip>
 #include "AbstractEntity.h"
 #include "Enemy.h"
 #include "Text.h"
 #include "HealthBar.h"
 
-class Game {
+struct ScoreRecord {
+	char name[20];
+	long points;
+};
 
+class Game {
+	
 private:
+	bool isGameOver = true;
+	inline static const int STATE__MENU = 0;
+	inline static const int STATE__MENU_CONTROLS = 1;
+	inline static const int STATE__MENU_ADD_NAME = 2;
+	inline static const int STATE__MENU_SCORES = 3;
+	inline static const int STATE__GAME_RUNNING = 10;
+
+	int gameState = STATE__MENU;
+
 	sf::RenderWindow window;
 
+	int points = 0;
 	int current_stage = 1;
 	int last_stage = 3;
 
@@ -29,15 +46,135 @@ private:
 	HealthBar* healthBar;
 
 	Text* stageText;
+	Text* pointsText;
+
+	Text* mainMenuTitle = new Text(80, sf::Color::White);
+	Text* mainMenuNav = new Text(30, sf::Color::White);
+
+	Text* controlsMenuText = new Text(40, sf::Color::White);
+
+	Text* menuNavText = new Text(30, sf::Color::White);
+
+	Text* scoresText = new Text(22, sf::Color::White, "consolas");
+
+	Text* menuPlayerName = new Text(24, sf::Color::White);
+	Text* playerNameText = new Text(22, sf::Color::White, "consolas");
 
 	Character* finalBoss = nullptr;
 
-	void Initialize() {
+	std::string gameName = "Descent to Catacombs";
+	std::string navMainMenuStr = "NEW GAME\nCONTROLS\nSCORES";
 
+	std::string controlsStr = "Controls: \n \nLeft Arrow (Left)\nRight Arrow (Right)\nUp Arrow (Jump)\nSPACE (Attack)";
+	std::string navMenu = "Esc to Back";
+
+	std::string scoreString = "";
+
+	int mainMenuCursorSelected = 0;
+	int mainMenuCursorSelectedMax = 3;
+
+	sf::CircleShape *cursorMainMenu;
+	sf::Vector2f cursorInitialPos;
+
+	std::string defaultPlayerName = "SIEGWARD";
+	std::string playerName = defaultPlayerName;
+
+	void LoadScores() {
+		std::ifstream file("data/score.dat", std::ios::binary);
+
+		std::stringstream ss;
+
+		ScoreRecord scoreTemp;
+		while (file.read(reinterpret_cast<char*>(&scoreTemp), sizeof(ScoreRecord))) {
+			//scoreString += (std::string)scoreTemp.name + std::to_string(scoreTemp.points) + "\n";
+			for (auto& c : scoreTemp.name) c = toupper(c);
+			ss << std::left << std::setw(10) << std::setfill('.') << scoreTemp.name << std::right << std::setw(10) << scoreTemp.points << std::endl;
+		}
+		
+
+		file.close();
+
+		scoreString = ss.str();
+		std::cout << scoreString;
+		scoresText->SetString(scoreString);
+		scoresText->SetPos((width / 2), (height / 2));
+		scoresText->CenterOrigin();
+	}
+	
+	void LoadMenu() {
+		stage = new Stage(-1);
+		cursorMainMenu = new sf::CircleShape(7);
+		cursorMainMenu->setFillColor(sf::Color::White);
+
+		cursorInitialPos = sf::Vector2f(550, 380);
+		cursorMainMenu->setPosition(cursorInitialPos);
+
+		mainMenuTitle->SetString(gameName);
+		mainMenuTitle->SetPos((width / 2), (height / 3));
+		mainMenuTitle->CenterOrigin();
+
+		mainMenuNav->SetString(navMainMenuStr);
+		mainMenuNav->SetPos((width / 2), height - 300);
+		mainMenuNav->CenterOrigin();
+
+		controlsMenuText->SetString(controlsStr);
+		controlsMenuText->SetPos((width / 2), (height / 3));
+		controlsMenuText->CenterOrigin();
+
+		menuNavText->SetString(navMenu);
+		menuNavText->SetPos((width / 2), (height - 40));
+		menuNavText->CenterOrigin();
+		menuNavText->CenterOrigin();
+
+		menuPlayerName->SetString("Player name: ");
+		menuPlayerName->SetPos(500, (height / 2));
+		menuPlayerName->CenterOrigin();
+
+		playerNameText->SetString(playerName);
+		playerNameText->SetPos(700, (height / 2));
+		playerNameText->CenterOrigin();
+
+	}
+
+	void InitializeGame() {
+
+		current_stage = 1;
+		points = 0;
+
+		//ensure clear
+		for (auto& enemy : enemies) {
+			if (enemy != nullptr) {
+				delete enemy;
+				enemy = nullptr;
+			}
+		}
+		enemies.clear();
+
+		if (finalBoss != nullptr) {
+			finalBoss = nullptr;
+		}
+
+		if (siegward != nullptr) {
+			delete siegward;
+			siegward = nullptr;
+		}
+
+		if (stage != nullptr) {
+			delete stage;
+			stage = nullptr;
+		}
+
+		//end ensure clear
+
+		isGameOver = false;
 		siegward = new Player();
 
-		stageText = new Text(20, sf::Color::White);
-		stageText->SetPos(10, 10);
+		stageText = new Text(25, sf::Color::White);
+		stageText->SetPos(10, height - 40);
+
+
+		pointsText = new Text(25, sf::Color::White);
+		pointsText->SetPos(100, height - 40);
 
 		healthBar = new HealthBar(siegward->GetPos(), 100, 5, siegward->getHealth());
 		healthBar->SetOrigin({ 50, 10.f + siegward->GetHeight() });
@@ -56,11 +193,51 @@ private:
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::KeyPressed) {
+
+				if (gameState == STATE__MENU) {
+					if (event.key.code == sf::Keyboard::Down) {
+						mainMenuCursorSelected++;
+						if (mainMenuCursorSelected == mainMenuCursorSelectedMax) mainMenuCursorSelected = 0;
+					}
+					else if (event.key.code == sf::Keyboard::Up) {
+						mainMenuCursorSelected--;
+						if (mainMenuCursorSelected < 0) mainMenuCursorSelected = (mainMenuCursorSelectedMax - 1);
+					}
+
+				}
+				else if (gameState == STATE__MENU_ADD_NAME) {
+					if (event.key.code == (sf::Keyboard::Escape)) {
+						gameState = STATE__MENU;
+					}else if (event.key.code == (sf::Keyboard::Enter) && !playerName.empty()) {
+						gameState = STATE__GAME_RUNNING;
+						InitializeGame();
+					}else if (event.key.code == sf::Keyboard::BackSpace) {
+						if (!playerName.empty()) playerName.pop_back();
+					}
+					else if (event.key.code >= sf::Keyboard::A && event.key.code <= sf::Keyboard::Z) {
+						playerName += static_cast<char>(event.key.code - sf::Keyboard::A + 'A');;
+					}
+				}
+				else if (gameState == STATE__MENU_CONTROLS) {
+					if (event.key.code == sf::Keyboard::Escape) {
+						gameState = STATE__MENU;
+					}
+				}
+				else if (gameState == STATE__MENU_SCORES) {
+					if (event.key.code == (sf::Keyboard::Escape)) {
+						gameState = STATE__MENU;
+					}
+				}
+
+			}
+
 		}
 	}
 
-	void Update() {
-		stageText->SetString("Stage : " + std::to_string(current_stage));
+	void UpdateGame() {
+		if (!(siegward->isAlive() && (finalBoss == nullptr || finalBoss->isAlive()))) { isGameOver = true; return; };
+
 		sf::Vector2f playerPos = siegward->GetPos();
 
 		if (playerPos.x > width) {
@@ -73,7 +250,7 @@ private:
 		siegward->ApplyGravity();
 		siegward->checkFallingState(stage->GetTiles());
 		stage->checkCollisions(siegward);
-		
+
 		bool encontroEnemigo = false;
 		std::vector<Character*>::iterator itEnemyHitted;
 		for (auto it = enemies.begin(); it != enemies.end();++it) {
@@ -81,11 +258,12 @@ private:
 				itEnemyHitted = it;
 				encontroEnemigo = true;
 				break;
-			}	
+			}
 		}
 		if (encontroEnemigo) {
 			(*itEnemyHitted)->takeDamage(siegward->getDamage());
 			if (!(*itEnemyHitted)->isAlive()) {
+				points += (300 * current_stage * (*itEnemyHitted)->getDamage()) / 10;
 				enemies.erase(itEnemyHitted);
 			}
 		}
@@ -109,7 +287,7 @@ private:
 		if (siegward->GetPos().y > height * 1.2) {
 			if (current_stage < last_stage) {
 				current_stage++;
-				
+
 				delete stage;
 				stage = nullptr;
 
@@ -127,7 +305,7 @@ private:
 			else {
 				siegward->Kill();
 			}
-			
+
 		}
 
 		//for (auto entity : entities) {
@@ -143,6 +321,56 @@ private:
 		healthBar->SetHealth(siegward->getHealth());
 		healthBar->SetPosition(siegward->GetPos());
 		healthBar->Update();
+
+		stageText->SetString("Stage : " + std::to_string(current_stage));
+		pointsText->SetString("Points : " + std::to_string(points));
+	}
+
+	void Update() {
+		if (gameState == STATE__GAME_RUNNING) {
+			if (isGameOver) {
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+					InitializeGame();
+				}
+			}
+			else {
+				UpdateGame();
+			}
+		}
+		else if (gameState == STATE__MENU) {
+			auto newPos = cursorInitialPos;
+			newPos.y = newPos.y + mainMenuCursorSelected * 38;
+			cursorMainMenu->setPosition(newPos);
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+				switch (mainMenuCursorSelected)
+				{
+				case 0:
+					//gameState = STATE__GAME_RUNNING;
+					//InitializeGame();
+					gameState = STATE__MENU_ADD_NAME;
+					break;
+				case 1:
+					gameState = STATE__MENU_CONTROLS;
+					break;
+				case 2:
+					gameState = STATE__MENU_SCORES;
+					break;
+				default:
+					break;
+				}
+
+			}
+		}
+		else if (gameState == STATE__MENU_SCORES) {
+			if (scoreString.empty()) {
+				LoadScores();
+			}
+		}
+		else if (gameState == STATE__MENU_ADD_NAME) {
+			playerNameText->SetString(playerName);
+		}
+
 	}
 
 	void Render() {
@@ -151,14 +379,10 @@ private:
 		window.display();
 	}
 
-	void Draw() {
+	void DrawGame() {
 
-		
-		//for (auto entity : entities) {
-		//	entity->Draw(window);
-		//}
 		stage->Draw(window);
-		
+
 
 		for (auto enemy : enemies) {
 			enemy->Draw(window);
@@ -168,15 +392,15 @@ private:
 		healthBar->Draw(window);
 
 		stageText->Draw(window);
+		pointsText->Draw(window);
 		//game over region
 		if (!siegward->isAlive()) {
 			//mover todo esto a una clase texto
-			
+
 			Text gameoverTxt(40, sf::Color::White);
 			gameoverTxt.SetString("Game Over");
 			gameoverTxt.CenterOrigin();
 			gameoverTxt.SetPos((width / 2), (height / 2));
-
 
 			//auto bounds = text.getGlobalBounds();
 			//text.setPosition;
@@ -203,6 +427,34 @@ private:
 		//end win region
 	}
 
+	void Draw() {
+		if (gameState == STATE__GAME_RUNNING) {
+			DrawGame();
+		}
+		else if (gameState == STATE__MENU) {
+			stage->Draw(window);
+			mainMenuTitle->Draw(window);
+			mainMenuNav->Draw(window);
+			window.draw(*cursorMainMenu);
+		}
+		else if (gameState == STATE__MENU_CONTROLS) {
+			stage->Draw(window);
+			controlsMenuText->Draw(window);
+			menuNavText->Draw(window);
+		}
+		else if (gameState == STATE__MENU_SCORES) {
+			stage->Draw(window);
+			scoresText->Draw(window);
+			menuNavText->Draw(window);
+		}
+		else if (gameState == STATE__MENU_ADD_NAME) {
+			stage->Draw(window);
+			playerNameText->Draw(window);
+			menuPlayerName->Draw(window);
+			menuNavText->Draw(window);
+		}
+	}
+
 public:
 
 	int width;
@@ -214,15 +466,13 @@ public:
 	}
 
 	void Run() {
-		Initialize();
+		LoadMenu();
 
 		while (window.isOpen())
 		{
 			ProcessEvents();
 
-			if (siegward->isAlive() && (finalBoss == nullptr || finalBoss->isAlive())) {
-				Update();
-			}
+			Update();
 
 			Render();
 		}
